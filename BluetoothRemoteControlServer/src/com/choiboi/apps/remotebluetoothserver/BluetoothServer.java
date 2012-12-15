@@ -6,6 +6,7 @@ import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.LocalDevice;
 import javax.bluetooth.UUID;
+
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 import javax.microedition.io.StreamConnectionNotifier;
@@ -31,15 +32,12 @@ public class BluetoothServer implements Runnable {
             // Set local Bluetooth to be generally discoverable.
             localDevice = LocalDevice.getLocalDevice();
             localDevice.setDiscoverable(DiscoveryAgent.GIAC);
-            System.out.println("Name of this Device: "
-                    + localDevice.getFriendlyName());
-            System.out.println("Bluetooth Address of this Device: "
-                    + localDevice.getBluetoothAddress());
+            System.out.println("Name of this Device: " + localDevice.getFriendlyName());
+            System.out.println("Bluetooth Address of this Device: " + localDevice.getBluetoothAddress());
 
             // Create UUID for SPP and service URL
             UUID uuid = new UUID("C46C11A93E424F64AB1EFC892E87B9DE", false); // C46C11A9-3E42-4F64-AB1E-FC892E87B9DE
-            String connectionURL = "btspp://localhost:" + uuid
-                    + ";name=BluetoothRemoteApp";
+            String connectionURL = "btspp://localhost:" + uuid + ";name=BluetoothRemoteApp";
 
             // Open server URL
             streamConnNotifier = (StreamConnectionNotifier) Connector
@@ -60,6 +58,10 @@ public class BluetoothServer implements Runnable {
             try {
                 System.out.println("\n" + WAITING_FOR_CONNECTION);
                 connection = streamConnNotifier.acceptAndOpen();
+                
+                // Start thread to process input commands
+                Thread processInputConnThread = new Thread(new ProcessInputConnection(connection));
+                processInputConnThread.start();
             } catch (IOException e) {
                 e.printStackTrace();
                 return;
@@ -68,7 +70,6 @@ public class BluetoothServer implements Runnable {
                 return;
             }
         }
-
     }
 
     /**
