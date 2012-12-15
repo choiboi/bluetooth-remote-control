@@ -15,6 +15,10 @@ public class BluetoothServer implements Runnable {
 
     private static final String WAITING_FOR_CONNECTION = "WAITING FOR BLUETOOTH CONNECTION.................";
     private static final String BLUETOOTH_EXCEPTION = "Bluetooth on this device cannot be changed!!";
+    private static final String LOCAL_DEVICE_NAME = "Name of this Device: ";
+    private static final String LOCAL_DEVICE_ADDRESS = "Bluetooth Address of this Device: ";
+    
+    private static final String _UUID = "C46C11A93E424F64AB1EFC892E87B9DE"; // C46C11A9-3E42-4F64-AB1E-FC892E87B9DE
 
     @Override
     public void run() {
@@ -32,16 +36,15 @@ public class BluetoothServer implements Runnable {
             // Set local Bluetooth to be generally discoverable.
             localDevice = LocalDevice.getLocalDevice();
             localDevice.setDiscoverable(DiscoveryAgent.GIAC);
-            System.out.println("Name of this Device: " + localDevice.getFriendlyName());
-            System.out.println("Bluetooth Address of this Device: " + localDevice.getBluetoothAddress());
+            System.out.println(LOCAL_DEVICE_NAME + localDevice.getFriendlyName());
+            System.out.println(LOCAL_DEVICE_ADDRESS + localDevice.getBluetoothAddress());
 
             // Create UUID for SPP and service URL
-            UUID uuid = new UUID("C46C11A93E424F64AB1EFC892E87B9DE", false); // C46C11A9-3E42-4F64-AB1E-FC892E87B9DE
+            UUID uuid = new UUID(_UUID, false);
             String connectionURL = "btspp://localhost:" + uuid + ";name=BluetoothRemoteApp";
 
             // Open server URL
-            streamConnNotifier = (StreamConnectionNotifier) Connector
-                    .open(connectionURL);
+            streamConnNotifier = (StreamConnectionNotifier) Connector.open(connectionURL);
         } catch (BluetoothStateException e) {
             System.out.println(BLUETOOTH_EXCEPTION);
             e.printStackTrace();
