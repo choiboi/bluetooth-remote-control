@@ -3,6 +3,9 @@
 
     <string name="app_name">Bluetooth Remote</string>
     <string name="hello_world">Hello world!</string>
-    <string name="menu_settings">Settings</string>
+    
+    <!-- Main Screen -->
+    <string name="connect_device">Connect to a Device</string>
+    <string name="make_discoverable">Make Discoverable</string>
 
 </resources>
