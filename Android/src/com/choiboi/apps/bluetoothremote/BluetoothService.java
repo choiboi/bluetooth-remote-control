@@ -1,6 +1,8 @@
 package com.choiboi.apps.bluetoothremote;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.UUID;
 
 import android.bluetooth.BluetoothAdapter;
@@ -33,6 +35,12 @@ public class BluetoothService {
 	// For Debugging purposes
 	private static final String TAG = "BluetoothService";
 	
+	// Command Constants
+	public static final int EXIT_CMD = -1;
+	public static final int VOL_UP = 1;
+	public static final int VOL_DOWN = 2;
+	public static final int MOUSE_MOVE = 3;	
+	
 	public BluetoothService(Context context, Handler handler) {
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		mState = STATE_NONE;
@@ -47,12 +55,45 @@ public class BluetoothService {
 			mConnectThread.cancel();
 			mConnectThread = null;
 		}
+		
 		if (mConnectedThread != null) {
 			mConnectedThread.cancel();
 			mConnectedThread = null;
 		}
 		
 		setState(STATE_LISTEN);
+	}
+	
+	/*
+	 * Stop all threads.
+	 */
+	public synchronized void stop() {
+		if (mConnectThread != null) {
+			mConnectThread.cancel();
+			mConnectThread = null;
+		}
+		
+		if (mConnectedThread != null) {
+			mConnectedThread.cancel();
+			mConnectedThread = null;
+		}
+		
+		setState(STATE_NONE);
+	}
+	
+//	public void write(byte[] out) {
+	public void write(int out) {
+		ConnectedThread r;
+		
+		// Synchronize a copy of the ConnectedThread
+		synchronized (this) {
+			if (mState != STATE_CONNECTED)
+				return;
+			r = mConnectedThread;
+		}
+		
+		// Perform write while unsynchronized
+		r.write(out);
 	}
 	
 	/*
@@ -82,7 +123,32 @@ public class BluetoothService {
 	}
 	
 	public synchronized void connected(BluetoothSocket socket, BluetoothDevice device) {
+		// Cancel any thread attempting to make a connection
+		if (mState == STATE_CONNECTING) {
+			if (mConnectThread != null) {
+				mConnectThread.cancel();
+				mConnectThread = null;
+			}
+		}
+
+		// Cancel any thread currently running a connection
+		if (mConnectedThread != null) {
+			mConnectedThread.cancel();
+			mConnectedThread = null;
+		}
 		
+		// Start the accept thread to manage the connection and perform transmissions
+		mConnectedThread = new ConnectedThread(socket);
+		mConnectedThread.start();
+		
+		// Send the name of the connected device back to the UI Activity
+		Message msg = mHandler.obtainMessage(BluetoothRemote.MESSAGE_DEVICE_NAME);
+		Bundle bundle = new Bundle();
+		bundle.putString(BluetoothRemote.DEVICE_NAME, device.getName());
+		msg.setData(bundle);
+		mHandler.sendMessage(msg);
+		
+		setState(STATE_CONNECTED);
 	}
 	
 	
@@ -98,6 +164,20 @@ public class BluetoothService {
 		mHandler.sendMessage(msg);
 		
 		// Start the service over the restart listening mode
+		BluetoothService.this.start();
+	}
+	
+	/*
+	 * Indicate that the connection was lost and notify the UI activity.
+	 */
+	private void connectionLost() {
+		Message msg = mHandler.obtainMessage(BluetoothRemote.MESSAGE_TOAST);
+		Bundle bundle = new Bundle();
+		bundle.putString(BluetoothRemote.TOAST, "Device connection was lost");
+		msg.setData(bundle);
+		mHandler.sendMessage(msg);
+		
+		// Start the service over to restart listening mode
 		BluetoothService.this.start();
 	}
 	
@@ -177,13 +257,80 @@ public class BluetoothService {
 	}
 	
 	private class ConnectedThread extends Thread {
+		private final BluetoothSocket mmSocket;
+		private final InputStream mmInStream;
+		private final OutputStream mmOutStream;
+		
 		public ConnectedThread(BluetoothSocket socket) {
+			mmSocket = socket;
+			InputStream tempInStream = null;
+			OutputStream tempOutStream = null;
 			
+			// Get the BluetoothSocket input and output streams
+			try {
+				tempInStream = socket.getInputStream();
+				tempOutStream = socket.getOutputStream();
+			} catch (IOException e) {
+				Log.e(TAG, "temp sockets not created", e);
+			}
+			
+			mmInStream = tempInStream;
+			mmOutStream = tempOutStream;
+		}
+		
+		public void run() {
+			byte[] buffer = new byte[1024];
+			int bytes;
+			
+			while (true) {
+				try {
+					// Read from the InputStream.
+					bytes = mmInStream.read(buffer);
+					
+					// Send the obtained bytes to the UI Activity
+					mHandler.obtainMessage(BluetoothRemote.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+				} catch (IOException e) {
+					Log.e(TAG, "disconnected", e);
+					connectionLost();
+					
+					// Start the service over to restart listening mode
+					BluetoothService.this.start();
+					break;
+				}
+			}
+		}
+		
+		/*
+		 * Write to the connected OutStream.
+		 * @param buffer The bytes to write
+		 */
+		public void write(byte[] buffer) {
+			try {
+				mmOutStream.write(buffer);
+				
+				//Share the sent message back to the UI Activity
+				mHandler.obtainMessage(BluetoothRemote.MESSAGE_WRITE, -1, -1, buffer).sendToTarget();
+			} catch (IOException e) {
+				Log.e(TAG, "Exception during write", e);
+			}
+		}
+		public void write(int cmd) {
+			try {
+				mmOutStream.write(cmd);
+				
+				//Share the sent message back to the UI Activity
+				mHandler.obtainMessage(BluetoothRemote.MESSAGE_WRITE, -1, -1, cmd).sendToTarget();
+			} catch (IOException e) {
+				Log.e(TAG, "Exception during write", e);
+			}
 		}
 
 		public void cancel() {
-			// TODO Auto-generated method stub
-			
+			try {
+				mmSocket.close();
+			} catch (IOException e) {
+				Log.e(TAG, "close() of connect socket failed", e);
+			}
 		}
 	}
 }

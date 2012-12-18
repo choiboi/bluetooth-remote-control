@@ -7,5 +7,13 @@
     <!-- Main Screen -->
     <string name="connect_device">Connect to a Device</string>
     <string name="make_discoverable">Make Discoverable</string>
-
+    
+    <!-- Title Text -->
+    <string name="title_connected_to">connected:</string>
+    <string name="title_connecting">connecting....</string>
+	<string name="title_not_connected">not connected</string>
+	
+	<!-- Toast Strings -->
+    <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Exiting Bluetooth Remote.</string>
+    
 </resources>
