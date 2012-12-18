@@ -5,20 +5,20 @@
 
     <TextView
         android:id="@+id/title_left_text"
+        style="?android:attr/windowTitleStyle"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
-	    android:layout_alignParentLeft="true"
-		android:ellipsize="end"
-		android:singleLine="true"
-		style="?android:attr/windowTitleStyle"/>
+        android:layout_alignParentLeft="true"
+        android:ellipsize="end"
+        android:singleLine="true" />
 
     <TextView
         android:id="@+id/title_right_text"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:layout_alignParentRight="true"
-        android:textColor="#fff"
         android:ellipsize="end"
-		android:singleLine="true"/>
+        android:singleLine="true"
+        android:textColor="#fff" />
 
 </RelativeLayout>
