@@ -205,11 +205,12 @@ public class BluetoothRemote extends Activity {
 			Log.e(TAG, "--- Handler handleMessage ---");
 			
 			switch (msg.what) {
+			// Changes the message on the application header
 			case MESSAGE_STATE_CHANGE:
 				switch (msg.arg1) {
 				case BluetoothService.STATE_CONNECTED:
 					mTitle.setText(R.string.title_connected_to);
-					mTitle.append(mConnectedDeviceName);
+					mTitle.append(" " + mConnectedDeviceName);
 					break;
 				case BluetoothService.STATE_CONNECTING:
 					mTitle.setText(R.string.title_connecting);
@@ -223,13 +224,10 @@ public class BluetoothRemote extends Activity {
 			case MESSAGE_DEVICE_NAME:
 				// Save the connected device's name
 				mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
-				Toast.makeText(getApplicationContext(),
-						"Connected to " + mConnectedDeviceName,
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), "Connected to " + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
 				break;
 			case MESSAGE_TOAST:
-				Toast.makeText(getApplicationContext(),
-						msg.getData().getString(TOAST), Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST), Toast.LENGTH_SHORT).show();
 				break;
 			}
 		}

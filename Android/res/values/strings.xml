@@ -9,19 +9,19 @@
     <string name="discoverable">Make discoverable</string>
     
     <!-- Bluetooth Remote -->
-    <string name="title_connected_to">connected: </string>
-    <string name="title_connecting">connecting...</string>
-    <string name="title_not_connected">not connected</string>
+    <string name="title_connected_to">CONNECTED TO: </string>
+    <string name="title_connecting">CONNECTING...</string>
+    <string name="title_not_connected">NOT CONNECTED</string>
     <string name="btn_find">Find Device</string>
-    <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Remote Bluetooth</string>
+    <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Bluetooth Remote Control</string>
     
     <!-- DeviceListActivity -->
     <string name="title_paired_devices">Paired Devices</string>
     <string name="title_other_devices">Other Available Devices</string>
-    <string name="scanning">scanning for devices...</string>
-    <string name="select_device">select a device to connect</string>
+    <string name="scanning">Scanning for Devices...</string>
+    <string name="select_device">Select a Device to Connect</string>
     <string name="none_found">No devices found</string>
     <string name="none_paired">No devices have been paired</string>
-    <string name="button_scan">Scan for devices</string>
+    <string name="button_scan">Scan for Devices</string>
     
 </resources>
