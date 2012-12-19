@@ -18,35 +18,38 @@ public class BluetoothService {
 	
 	// Debugging
 	private static final String TAG = "BluetoothService";
-	
+
 	// Member fields
 	private final BluetoothAdapter mBluetoothAdapter;
-    private final Handler mHandler;
-    private ConnectThread mConnectThread;
-    private ConnectedThread mConnectedThread;
-    private int mState;
-    
-    // UUID for this application
-    private static final UUID _UUID = UUID.fromString("C46C11A9-3E42-4F64-AB1E-FC892E87B9DE");
-    
-    // Constants for current connection state
-    public static final int STATE_NONE = 0;       // we're doing nothing
-    public static final int STATE_LISTEN = 1;     // now listening for incoming connections
-    public static final int STATE_CONNECTING = 2; // now initiating an outgoing connection
-    public static final int STATE_CONNECTED = 3;  // now connected to a remote device
-    
+	private final Handler mHandler;
+	private ConnectThread mConnectThread;
+	private ConnectedThread mConnectedThread;
+	private int mState;
+
+	// UUID for this application
+	private static final UUID _UUID = UUID.fromString("C46C11A9-3E42-4F64-AB1E-FC892E87B9DE");
+
+	// Constants for current connection state
+	public static final int STATE_NONE = 0; // we're doing nothing
+	public static final int STATE_LISTEN = 1; // now listening for incoming
+												// connections
+	public static final int STATE_CONNECTING = 2; // now initiating an outgoing
+													// connection
+	public static final int STATE_CONNECTED = 3; // now connected to a remote
+													// device
+
 	// Constants that indicate command to computer
 	public static final int EXIT_CMD = -1;
 	public static final int VOL_UP = 1;
 	public static final int VOL_DOWN = 2;
 	public static final int MOUSE_MOVE = 3;
-    
-    public BluetoothService(Context context, Handler handler) {
-    	Log.e(TAG, "++ BluetoothService ++");
-    	mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    	mState = STATE_NONE;
-    	mHandler = handler;
-    }
+
+	public BluetoothService(Context context, Handler handler) {
+		Log.e(TAG, "++ BluetoothService ++");
+		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		mState = STATE_NONE;
+		mHandler = handler;
+	}
     
     public synchronized void start() {
     	Log.e(TAG, "--- start ---");
@@ -188,14 +191,14 @@ public class BluetoothService {
         mHandler.sendMessage(msg);
     }
     
-    /*
-     * Indicate that the connection was lost and notify the UI Activity.
-     */
+	/*
+	 * Indicate that the connection was lost and notify the UI Activity.
+	 */
 	private void connectionLost() {
 		Log.e(TAG, "--- connectionLost ---");
-		
+
 		setState(STATE_LISTEN);
-		
+
 		// Send a failure message back to the Activity
 		Message msg = mHandler.obtainMessage(BluetoothRemote.MESSAGE_TOAST);
 		Bundle bundle = new Bundle();
@@ -205,45 +208,48 @@ public class BluetoothService {
 
 	}
     
-    /*
-     * Write to the ConnectedThread in an unsynchronized manner.
-     * 
-     * @param out The bytes to write
-     * @see ConnectedThread#write(byte[])
-     */
-    public void write(byte[] out) {
-    	Log.e(TAG, "--- write byte[] ---");
-    	
-        // Create temporary object
-        ConnectedThread r;
-        // Synchronize a copy of the ConnectedThread
-        synchronized (this) {
-            if (mState != STATE_CONNECTED) return;
-            r = mConnectedThread;
-        }
-        // Perform the write unsynchronized
-        r.write(out);
-    }
+	/*
+	 * Write to the ConnectedThread in an unsynchronized manner.
+	 * 
+	 * @param out The bytes to write
+	 * 
+	 * @see ConnectedThread#write(byte[])
+	 */
+	public void write(byte[] out) {
+		Log.e(TAG, "--- write byte[] ---");
+
+		// Create temporary object
+		ConnectedThread r;
+		// Synchronize a copy of the ConnectedThread
+		synchronized (this) {
+			if (mState != STATE_CONNECTED)
+				return;
+			r = mConnectedThread;
+		}
+		// Perform the write unsynchronized
+		r.write(out);
+	}
+
+	public void write(int out) {
+		Log.e(TAG, "--- write int ---");
+
+		// Create temporary object
+		ConnectedThread r;
+		// Synchronize a copy of the ConnectedThread
+		synchronized (this) {
+			if (mState != STATE_CONNECTED)
+				return;
+			r = mConnectedThread;
+		}
+		// Perform the write unsynchronized
+		r.write(out);
+	}
     
-    public void write(int out) {
-    	Log.e(TAG, "--- write int ---");
-    	
-    	// Create temporary object
-        ConnectedThread r;
-        // Synchronize a copy of the ConnectedThread
-        synchronized (this) {
-            if (mState != STATE_CONNECTED) return;
-            r = mConnectedThread;
-        }
-        // Perform the write unsynchronized
-        r.write(out);
-    }
-    
-    /*
-     * This thread runs while attempting to make an outgoing connection
-     * with a device. It runs straight through; the connection either
-     * succeeds or fails.
-     */
+	/*
+	 * This thread runs while attempting to make an outgoing connection with a
+	 * device. It runs straight through; the connection either succeeds or
+	 * fails.
+	 */
 	private class ConnectThread extends Thread {
 		private final BluetoothSocket mmSocket;
 		private final BluetoothDevice mmDevice;

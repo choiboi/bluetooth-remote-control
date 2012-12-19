@@ -2,8 +2,7 @@
 <resources>
     
     <!-- Application -->
-    <string name="hello">Hello World, RemoteBluetooth!</string>
-    <string name="app_name">Bluetooth Remote</string>
+    <string name="app_name">Bluetooth Remote Control</string>
     
     <!--  Options Menu -->
     <string name="connect">Connect a device</string>
