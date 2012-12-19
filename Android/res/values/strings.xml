@@ -15,15 +15,15 @@
 
     <!-- Toast Strings -->
     <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Exiting Bluetooth Remote.</string>
-    
+
     <!-- Device List Activity -->
-	<string name="select_device">select a device to connect</string>
-	<string name="none_found">No devices found</string>
-	<string name="scanning">Scanning for Devices....</string>
-	<string name="connect">Connect a Device</string>
-	<string name="discoverable">Make Discoverable</string>
-	<string name="title_paired_devices">Paired Devices</string>
-	<string name="title_other_devices">Other Available Devices</string>
-	<string name="button_scan">Scan for Devices</string>
-	
+    <string name="select_device">select a device to connect</string>
+    <string name="none_found">No devices found</string>
+    <string name="scanning">Scanning for Devices....</string>
+    <string name="connect">Connect a Device</string>
+    <string name="discoverable">Make Discoverable</string>
+    <string name="title_paired_devices">Paired Devices</string>
+    <string name="title_other_devices">Other Available Devices</string>
+    <string name="button_scan">Scan for Devices</string>
+    <string name="none_paired">No devices have been paired</string>
 </resources>

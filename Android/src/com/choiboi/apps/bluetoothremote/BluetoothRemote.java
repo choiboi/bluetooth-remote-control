@@ -8,6 +8,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -94,6 +97,7 @@ public class BluetoothRemote extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		
 		if (mBluetoothService != null) {
 			if (mBluetoothService.getState() == BluetoothService.STATE_NONE) {
 				mBluetoothService.start();
@@ -176,5 +180,29 @@ public class BluetoothRemote extends Activity {
 				finish();
 			}
 		}
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.layout.main_options_menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.scan:
+			// Launch the DeviceListActivity to see devices and do scan
+			Intent serverIntent = new Intent(this, DeviceListActivity.class);
+			startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+			return true;
+		case R.id.discoverable:
+			// Ensure this device is discoverable by others
+			ensureDiscoverable();
+			return true;
+		}
+		
+		return false;
 	}
 }
