@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <resources>
     
     <!-- Application -->
@@ -20,8 +21,8 @@
     <string name="title_other_devices">Other Available Devices</string>
     <string name="scanning">Scanning for Devices...</string>
     <string name="select_device">Select a Device to Connect</string>
-    <string name="none_found">No devices found</string>
-    <string name="none_paired">No devices have been paired</string>
+    <string name="none_found">No Devices Found</string>
+    <string name="none_paired">No Devices Have Been Paired</string>
     <string name="button_scan">Scan for Devices</string>
     
 </resources>
