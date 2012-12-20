@@ -17,22 +17,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class BluetoothRemote extends Activity {
-	
+
 	// Debugging
 	private static final String TAG = "BluetoothRemote";
-	
+
 	// Member fields
 	private BluetoothAdapter mBluetoothAdapter = null;
 	private BluetoothService mBluetoothService = null;
 	private String mConnectedDeviceName = null;
-	
+
 	// Layout
 	private TextView mTitle;
-	
+
 	// Intent request codes
-    private static final int REQUEST_CONNECT_DEVICE = 1;
-    private static final int REQUEST_ENABLE_BT = 2;
-    
+	private static final int REQUEST_CONNECT_DEVICE = 1;
+	private static final int REQUEST_ENABLE_BT = 2;
+
     // Message types sent from the BluetoothChatService Handler
     public static final int MESSAGE_STATE_CHANGE = 1;
     public static final int MESSAGE_READ = 2;
@@ -141,11 +141,13 @@ public class BluetoothRemote extends Activity {
 		Log.e(TAG, "++ onKeyDown ++");
 		
 		if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-			mBluetoothService.write(BluetoothService.VOL_UP);
+			String command = mConnectedDeviceName + ": KEYCODE_VOLUME_UP";
+			mBluetoothService.write(command.getBytes());
 			return true;
 		}
 		else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN){
-			mBluetoothService.write(BluetoothService.VOL_DOWN);
+			String command = mConnectedDeviceName + ": KEYCODE_VOLUME_DOWN";
+			mBluetoothService.write(command.getBytes());
 			return true;
 		}
 		

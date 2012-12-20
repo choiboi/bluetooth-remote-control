@@ -373,6 +373,7 @@ public class BluetoothService {
 		 */
 		public void write(byte[] buffer) {
 			try {
+				Log.e(TAG, "++ write wrote to outstream ++");
 				mmOutStream.write(buffer);
 
 				// Share the sent message back to the UI Activity

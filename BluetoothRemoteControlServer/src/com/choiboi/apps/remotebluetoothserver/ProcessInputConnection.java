@@ -2,8 +2,10 @@ package com.choiboi.apps.remotebluetoothserver;
 
 import java.awt.Robot;
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import javax.microedition.io.StreamConnection;
 
@@ -24,18 +26,24 @@ public class ProcessInputConnection implements Runnable {
     public void run() {
         try {
             // Open up InputStream and receive data
-            InputStream inputStream = connection.openInputStream();
+            InputStream inputStream = connection.openDataInputStream();
             System.out.println("Waiting for commands.....");
             while (true) {
-                int inputCommand = inputStream.read();
+                byte[] buffer = new byte[2048];
+                int bytes = inputStream.read(buffer);
+                String cmd = new String(buffer, 0, bytes);
+                
+                System.out.println(cmd);
+                
+//                int inputCommand = inputStream.read();
                 
                 // Indicate that application and ended
-                if (inputCommand == EXIT_CMD) {
-                    System.out.println("==============APPLICATION ENDED==============");
-                    break;
-                }
-                
-                processCommand(inputCommand);
+//                if (inputCommand == EXIT_CMD) {
+//                    System.out.println("==============APPLICATION ENDED==============");
+//                    break;
+//                }
+//                
+//                processCommand(inputCommand);
             }
         } catch (IOException e) {
             e.printStackTrace();
