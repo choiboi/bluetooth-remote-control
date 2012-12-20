@@ -25,6 +25,7 @@ public class BluetoothRemote extends Activity {
 	private BluetoothAdapter mBluetoothAdapter = null;
 	private BluetoothService mBluetoothService = null;
 	private String mConnectedDeviceName = null;
+	private String mLocalDeviceName = null;
 
 	// Layout
 	private TextView mTitle;
@@ -43,6 +44,7 @@ public class BluetoothRemote extends Activity {
     // Key names received from the BluetoothCommandService Handler
     public static final String DEVICE_NAME = "device_name";
     public static final String TOAST = "toast";
+    public static final String DEVICE_CONNECTED = "DEVICE CONNECTED";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +76,8 @@ public class BluetoothRemote extends Activity {
 	protected void onStart() {
 		super.onStart();
 		Log.e(TAG, "++ onStart ++");
+		
+		mLocalDeviceName = mBluetoothAdapter.getName();
 		
 		// If BT is not on, request that it be enabled.
 		// setupCommand() will then be called during onActivityResult
@@ -141,12 +145,12 @@ public class BluetoothRemote extends Activity {
 		Log.e(TAG, "++ onKeyDown ++");
 		
 		if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-			String command = mConnectedDeviceName + ": KEYCODE_VOLUME_UP";
+			String command = mLocalDeviceName + ":" +BluetoothService.VOL_UP;
 			mBluetoothService.write(command.getBytes());
 			return true;
 		}
 		else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN){
-			String command = mConnectedDeviceName + ": KEYCODE_VOLUME_DOWN";
+			String command = mLocalDeviceName + ":" + BluetoothService.VOL_DOWN;
 			mBluetoothService.write(command.getBytes());
 			return true;
 		}
@@ -163,6 +167,9 @@ public class BluetoothRemote extends Activity {
 		mBluetoothService = new BluetoothService(this, mHandler);
 	}
 	
+	/*
+	 * Start making the device discoverable for 300 seconds.
+	 */
 	private void ensureDiscoverable() {
 		Log.e(TAG, "--- ensureDiscoverable ---");
 
@@ -213,6 +220,10 @@ public class BluetoothRemote extends Activity {
 				case BluetoothService.STATE_CONNECTED:
 					mTitle.setText(R.string.title_connected_to);
 					mTitle.append(" " + mConnectedDeviceName);
+					
+					// Send the name of the connected device to the server
+					String command = DEVICE_CONNECTED + ":" + mLocalDeviceName;
+					mBluetoothService.write(command.getBytes());
 					break;
 				case BluetoothService.STATE_CONNECTING:
 					mTitle.setText(R.string.title_connecting);

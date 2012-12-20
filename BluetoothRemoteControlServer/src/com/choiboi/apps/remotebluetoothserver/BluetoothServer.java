@@ -75,7 +75,7 @@ public class BluetoothServer implements Runnable {
         }
     }
 
-    /**
+    /*
      * @param args
      */
     public static void main(String[] args) {

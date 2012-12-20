@@ -25,6 +25,7 @@ public class BluetoothService {
 	private ConnectThread mConnectThread;
 	private ConnectedThread mConnectedThread;
 	private int mState;
+	private String mLocalDeviceName;
 
 	// UUID for this application
 	private static final UUID _UUID = UUID.fromString("C46C11A9-3E42-4F64-AB1E-FC892E87B9DE");
@@ -39,14 +40,15 @@ public class BluetoothService {
 													// device
 
 	// Constants that indicate command to computer
-	public static final int EXIT_CMD = -1;
-	public static final int VOL_UP = 1;
-	public static final int VOL_DOWN = 2;
+	public static final String EXIT_CMD = "EXIT";
+	public static final String VOL_UP = "VK_RIGHT";
+	public static final String VOL_DOWN = "VK_LEFT";
 	public static final int MOUSE_MOVE = 3;
 
 	public BluetoothService(Context context, Handler handler) {
 		Log.e(TAG, "++ BluetoothService ++");
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		mLocalDeviceName = mBluetoothAdapter.getName();
 		mState = STATE_NONE;
 		mHandler = handler;
 	}
@@ -229,21 +231,6 @@ public class BluetoothService {
 		// Perform the write unsynchronized
 		r.write(out);
 	}
-
-	public void write(int out) {
-		Log.e(TAG, "--- write int ---");
-
-		// Create temporary object
-		ConnectedThread r;
-		// Synchronize a copy of the ConnectedThread
-		synchronized (this) {
-			if (mState != STATE_CONNECTED)
-				return;
-			r = mConnectedThread;
-		}
-		// Perform the write unsynchronized
-		r.write(out);
-	}
     
 	/*
 	 * This thread runs while attempting to make an outgoing connection with a
@@ -289,9 +276,7 @@ public class BluetoothService {
 				try {
 					mmSocket.close();
 				} catch (IOException e2) {
-					Log.e(TAG,
-							"unable to close() socket during connection failure",
-							e2);
+					Log.e(TAG, "unable to close() socket during connection failure", e2);
 				}
 				// Start the service over to restart listening mode
 				BluetoothService.this.start();
@@ -365,34 +350,15 @@ public class BluetoothService {
 			}
 		}
 
-		/**
+		/*
 		 * Write to the connected OutStream.
 		 * 
-		 * @param buffer
-		 *            The bytes to write
+		 * @param buffer The bytes to write
 		 */
 		public void write(byte[] buffer) {
 			try {
 				Log.e(TAG, "++ write wrote to outstream ++");
 				mmOutStream.write(buffer);
-
-				// Share the sent message back to the UI Activity
-				// mHandler.obtainMessage(BluetoothChat.MESSAGE_WRITE, -1, -1,
-				// buffer)
-				// .sendToTarget();
-			} catch (IOException e) {
-				Log.e(TAG, "Exception during write", e);
-			}
-		}
-
-		public void write(int out) {
-			try {
-				mmOutStream.write(out);
-
-				// Share the sent message back to the UI Activity
-				// mHandler.obtainMessage(BluetoothChat.MESSAGE_WRITE, -1, -1,
-				// buffer)
-				// .sendToTarget();
 			} catch (IOException e) {
 				Log.e(TAG, "Exception during write", e);
 			}
@@ -400,7 +366,8 @@ public class BluetoothService {
 
 		public void cancel() {
 			try {
-				mmOutStream.write(EXIT_CMD);
+				String command = mLocalDeviceName + ":" + EXIT_CMD;
+				mmOutStream.write(command.getBytes());
 				mmSocket.close();
 			} catch (IOException e) {
 				Log.e(TAG, "close() of connect socket failed", e);
