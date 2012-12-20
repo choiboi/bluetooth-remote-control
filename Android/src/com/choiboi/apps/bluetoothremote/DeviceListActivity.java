@@ -37,11 +37,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
-/**
- * This Activity appears as a dialog. It lists any paired devices and
- * devices detected in the area after discovery. When a device is chosen
- * by the user, the MAC address of the device is sent back to the parent
- * Activity in the result Intent.
+/*
+ * This Activity appears as a dialog. It lists any paired devices and devices
+ * detected in the area after discovery. When a device is chosen by the user,
+ * the MAC address of the device is sent back to the parent Activity in the
+ * result Intent.
  */
 public class DeviceListActivity extends Activity {
     // Debugging
@@ -134,7 +134,8 @@ public class DeviceListActivity extends Activity {
      * Start device discover with the BluetoothAdapter
      */
     private void doDiscovery() {
-        if (D) Log.d(TAG, "doDiscovery()");
+        if (D)
+            Log.d(TAG, "doDiscovery()");
 
         // Indicate scanning in the title
         setProgressBarIndeterminateVisibility(true);
@@ -158,7 +159,8 @@ public class DeviceListActivity extends Activity {
             // Cancel discovery because it's costly and we're about to connect
             mBluetoothtAdapter.cancelDiscovery();
 
-            // Get the device MAC address, which is the last 17 chars in the View
+            // Get the device MAC address, which is the last 17 chars in the
+            // View
             String info = ((TextView) v).getText().toString();
             String address = info.substring(info.length() - 17);
 
@@ -183,12 +185,14 @@ public class DeviceListActivity extends Activity {
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 // Get the BluetoothDevice object from the Intent
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                // If it's already paired, skip it, because it's been listed already
+                // If it's already paired, skip it, because it's been listed
+                // already
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
                     mNewDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
                 }
-            // When discovery is finished, change the Activity title
-            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+                // When discovery is finished, change the Activity title
+            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED
+                    .equals(action)) {
                 setProgressBarIndeterminateVisibility(false);
                 setTitle(R.string.select_device);
                 if (mNewDevicesArrayAdapter.getCount() == 0) {
@@ -198,5 +202,4 @@ public class DeviceListActivity extends Activity {
             }
         }
     };
-
 }
