@@ -9,10 +9,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +25,8 @@ public class BluetoothRemote extends Activity {
     private BluetoothService mBluetoothService = null;
     private String mConnectedDeviceName = null;
     private String mLocalDeviceName = null;
+    private Button connectButton;
+    private Button discoverableButton;
 
     // Layout
     private TextView mTitle;
@@ -53,7 +54,7 @@ public class BluetoothRemote extends Activity {
 
         // Setup the layout
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
-        setContentView(R.layout.main);
+        setContentView(R.layout.main_screen);
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.custom_title);
 
         // Setup the custom title
@@ -70,7 +71,19 @@ public class BluetoothRemote extends Activity {
             finish();
             return;
         }
+        
+        // Button listeners
+//        connectButton = (Button) findViewById(R.id.connect_button);
+//        connectButton.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//                Intent serverIntent = new Intent(this, DeviceListActivity.class);
+//                startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+//                return true;
+//            }
+//        });
     }
+    
+
 
     @Override
     protected void onStart() {
@@ -113,31 +126,25 @@ public class BluetoothRemote extends Activity {
             mBluetoothService.stop();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        Log.e(TAG, "++ onCreateOptionsMenu ++");
-
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.option_menu, menu);
-        return true;
+    /*
+     * Whenever the Connect a Device button is clicked it will invoke this
+     * function and launch the DeviceListActivity to see devices and do scan.
+     */
+    public void connectButtonClicked(View v) {
+        Log.e(TAG, "--- connectButtonClicked ---");
+        
+        Intent serverIntent = new Intent(this, DeviceListActivity.class);
+        startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Log.e(TAG, "++ onOptionsItemSelected ++");
-
-        switch (item.getItemId()) {
-        case R.id.scan:
-            // Launch the DeviceListActivity to see devices and do scan
-            Intent serverIntent = new Intent(this, DeviceListActivity.class);
-            startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
-            return true;
-        case R.id.discoverable:
-            // Ensure this device is discoverable by others
-            ensureDiscoverable();
-            return true;
-        }
-        return false;
+    /*
+     * Whenever the Make Discoverable button is clicked it will invoke this
+     * function and will ensure that this device is discoverable by others.
+     */
+    public void discoverableButtonClicked(View v) {
+        Log.e(TAG, "--- discoverableButtonClicked ---");
+        
+        ensureDiscoverable();
     }
 
     @Override

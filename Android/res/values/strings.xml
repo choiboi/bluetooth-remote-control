@@ -6,8 +6,8 @@
     <string name="app_name">Bluetooth Remote Control</string>
     
     <!--  Options Menu -->
-    <string name="connect">Connect a device</string>
-    <string name="discoverable">Make discoverable</string>
+    <string name="connect">Connect a Device</string>
+    <string name="discoverable">Make Discoverable</string>
     
     <!-- Bluetooth Remote -->
     <string name="title_connected_to">CONNECTED TO: </string>
