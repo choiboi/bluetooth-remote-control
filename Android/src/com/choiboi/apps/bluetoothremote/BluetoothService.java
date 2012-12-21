@@ -40,10 +40,10 @@ public class BluetoothService {
     public static final String EXIT_CMD = "EXIT";
     public static final String VOL_UP = "VK_RIGHT";
     public static final String VOL_DOWN = "VK_LEFT";
-    public static final int MOUSE_MOVE = 3;
 
     public BluetoothService(Context context, Handler handler) {
         Log.e(TAG, "++ BluetoothService ++");
+        
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mLocalDeviceName = mBluetoothAdapter.getName();
         mState = STATE_NONE;

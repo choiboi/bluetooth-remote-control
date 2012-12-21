@@ -177,7 +177,17 @@ public class BluetoothRemote extends Activity {
             startActivity(discoverableIntent);
         }
     }
-
+    
+    /*
+     * 
+     */
+    private void startPresentationMode() {
+        Intent presModeIntent = new Intent(this, PresentationMode.class);
+        // Pass BluetoothService object to PresentationMode Activity
+        ActivitiesBridge.setObject(mBluetoothService);
+        startActivity(presModeIntent);
+    }
+    
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.e(TAG, "--- onActivityResult ---");
 
@@ -207,11 +217,6 @@ public class BluetoothRemote extends Activity {
                 finish();
             }
         }
-    }
-    
-    private void startPresentationMode() {
-        Intent serverIntent = new Intent(this, PresentationMode.class);
-        startActivity(serverIntent);
     }
     
     private final Handler mHandler = new Handler() {
