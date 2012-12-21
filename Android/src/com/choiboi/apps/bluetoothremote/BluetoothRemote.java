@@ -71,16 +71,6 @@ public class BluetoothRemote extends Activity {
             finish();
             return;
         }
-        
-        // Button listeners
-//        connectButton = (Button) findViewById(R.id.connect_button);
-//        connectButton.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//                Intent serverIntent = new Intent(this, DeviceListActivity.class);
-//                startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
-//                return true;
-//            }
-//        });
     }
     
 
