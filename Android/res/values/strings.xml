@@ -25,4 +25,7 @@
     <string name="none_paired">No Devices Have Been Paired</string>
     <string name="button_scan">Scan for Devices</string>
     
+    <!-- PresentationMode -->
+    <string name="presentation_title">Presentation Mode</string>
+    
 </resources>

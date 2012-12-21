@@ -1,5 +1,7 @@
 package com.choiboi.apps.bluetoothremote;
 
+import com.choiboi.apps.bluetoothremote.presentationmode.PresentationMode;
+
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -170,10 +172,8 @@ public class BluetoothRemote extends Activity {
         Log.e(TAG, "--- ensureDiscoverable ---");
 
         if (mBluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
-            Intent discoverableIntent = new Intent(
-                    BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-            discoverableIntent.putExtra(
-                    BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+            Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
             startActivity(discoverableIntent);
         }
     }
@@ -191,6 +191,9 @@ public class BluetoothRemote extends Activity {
                 BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
                 // Attempt to connect to the device
                 mBluetoothService.connect(device);
+                
+                // Move to screen for presentation controls
+                startPresentationMode();
             }
             break;
         case REQUEST_ENABLE_BT:
@@ -205,7 +208,12 @@ public class BluetoothRemote extends Activity {
             }
         }
     }
-
+    
+    private void startPresentationMode() {
+        Intent serverIntent = new Intent(this, PresentationMode.class);
+        startActivity(serverIntent);
+    }
+    
     private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -221,7 +229,7 @@ public class BluetoothRemote extends Activity {
 
                     // Send the name of the connected device to the server
                     String command = DEVICE_CONNECTED + ":" + mLocalDeviceName;
-                    mBluetoothService.write(command.getBytes());
+                    mBluetoothService.write(command.getBytes()); 
                     break;
                 case BluetoothService.STATE_CONNECTING:
                     mTitle.setText(R.string.title_connecting);
