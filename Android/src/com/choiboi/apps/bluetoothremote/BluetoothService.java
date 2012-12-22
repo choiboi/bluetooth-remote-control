@@ -107,8 +107,17 @@ public class BluetoothService {
      */
     public synchronized int getState() {
         Log.e(TAG, "--- getState ---");
-
+        
         return mState;
+    }
+    
+    /*
+     * Return the name of the currently connected device.
+     */
+    public synchronized String getLocalDeviceName() {
+        Log.e(TAG, "--- getDeviceName ---");
+        
+        return mBluetoothAdapter.getName();
     }
 
     /*

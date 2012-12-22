@@ -27,8 +27,6 @@ public class BluetoothRemote extends Activity {
     private BluetoothService mBluetoothService = null;
     private String mConnectedDeviceName = null;
     private String mLocalDeviceName = null;
-    private Button connectButton;
-    private Button discoverableButton;
 
     // Layout
     private TextView mTitle;
@@ -75,8 +73,6 @@ public class BluetoothRemote extends Activity {
         }
     }
     
-
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -139,23 +135,6 @@ public class BluetoothRemote extends Activity {
         ensureDiscoverable();
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Log.e(TAG, "++ onKeyDown ++");
-
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-            String command = mLocalDeviceName + ":" + BluetoothService.VOL_UP;
-            mBluetoothService.write(command.getBytes());
-            return true;
-        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            String command = mLocalDeviceName + ":" + BluetoothService.VOL_DOWN;
-            mBluetoothService.write(command.getBytes());
-            return true;
-        }
-
-        return super.onKeyDown(keyCode, event);
-    }
-
     /*
      * Initialize BluetoothService to perform Bluetooth connections.
      */
@@ -179,10 +158,13 @@ public class BluetoothRemote extends Activity {
     }
     
     /*
-     * 
+     * Once the device is connected, switch to Presentation Mode were all
+     * the input controls necessary for presentation will be there.
      */
     private void startPresentationMode() {
         Intent presModeIntent = new Intent(this, PresentationMode.class);
+        presModeIntent.putExtra(PresentationMode.CONNECTED_DEVICE_NAME, mConnectedDeviceName);
+        
         // Pass BluetoothService object to PresentationMode Activity
         ActivitiesBridge.setObject(mBluetoothService);
         startActivity(presModeIntent);
@@ -201,9 +183,6 @@ public class BluetoothRemote extends Activity {
                 BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
                 // Attempt to connect to the device
                 mBluetoothService.connect(device);
-                
-                // Move to screen for presentation controls
-                startPresentationMode();
             }
             break;
         case REQUEST_ENABLE_BT:
@@ -235,6 +214,9 @@ public class BluetoothRemote extends Activity {
                     // Send the name of the connected device to the server
                     String command = DEVICE_CONNECTED + ":" + mLocalDeviceName;
                     mBluetoothService.write(command.getBytes()); 
+
+                    // Move to screen for presentation controls
+                    startPresentationMode();
                     break;
                 case BluetoothService.STATE_CONNECTING:
                     mTitle.setText(R.string.title_connecting);

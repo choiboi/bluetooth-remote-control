@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Window;
+import android.widget.TextView;
 
 import com.choiboi.apps.bluetoothremote.ActivitiesBridge;
 import com.choiboi.apps.bluetoothremote.BluetoothService;
@@ -13,12 +15,18 @@ public class PresentationMode extends Activity {
 
     // Debugging
     private static final String TAG = "PresentationMode";
-    
+
     // Member fields
     private BluetoothService mBluetoothService;
-    
+    private String mConnectedDeviceName;
+    private String mLocalDeviceName;
+
+    // Layout
+    private TextView mTitle;
+
     // Values for retrieving data from Bundle
     public static final String BLUETOOTH_SERVICE = "BluetoothService";
+    public static final String CONNECTED_DEVICE_NAME = "connected_device_name";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,11 +34,24 @@ public class PresentationMode extends Activity {
         Log.e(TAG, "++ onCreate ++");
         
         // Setup the layout
-//        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
+        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.presentation_screen);
-//        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.custom_title);
+        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.custom_title);
         
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            mConnectedDeviceName = bundle.getString(CONNECTED_DEVICE_NAME);
+        }
+
+        // Setup the custom title
+        mTitle = (TextView) findViewById(R.id.title_left_text);
+        mTitle.setText(R.string.app_name);
+        mTitle = (TextView) findViewById(R.id.title_right_text);
+        mTitle.setText(R.string.title_connected_to);
+        mTitle.append(" " + mConnectedDeviceName);
+
         mBluetoothService = (BluetoothService) ActivitiesBridge.getObject();
+        mLocalDeviceName = mBluetoothService.getLocalDeviceName();
     }
     
     @Override
@@ -38,11 +59,11 @@ public class PresentationMode extends Activity {
         Log.e(TAG, "++ onKeyDown ++");
 
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-            String command = "SG3.CHOI" + ":" + BluetoothService.VOL_UP;
+            String command = mLocalDeviceName + ":" + BluetoothService.VOL_UP;
             mBluetoothService.write(command.getBytes());
             return true;
         } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            String command = "SG3.CHOI" + ":" + BluetoothService.VOL_DOWN;
+            String command = mLocalDeviceName + ":" + BluetoothService.VOL_DOWN;
             mBluetoothService.write(command.getBytes());
             return true;
         }
