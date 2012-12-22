@@ -33,10 +33,14 @@ public class ProcessInputConnection implements Runnable {
             while (true) {
                 byte[] buffer = new byte[2048];
                 int bytes = inputStream.read(buffer);
-                String[] cmd = parseInputCommand(new String(buffer, 0, bytes));
+                String[] cmd = new String[]{"", ""};
+                
+                if (bytes != -1) {
+                    cmd = parseInputCommand(new String(buffer, 0, bytes));
+                }
                 
                 // Stop thread if application on device quits
-                if (cmd[1].equals(EXIT_CMD)) {
+                if (bytes == -1 || cmd[1].equals(EXIT_CMD)) {
                     System.out.println("==============APPLICATION ENDED==============");
                     break; 
                 }

@@ -1,8 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/black"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    tools:context=".presentationmode.PresentationMode" >
+
+    <TextView
+        android:id="@+id/presentation_mode_title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="false"
+        android:text="@string/presentation_title"
+        android:textSize="20sp" />
 
 </RelativeLayout>
