@@ -32,10 +32,10 @@ public class PresentationMode extends Activity {
     public static final String CONNECTED_DEVICE_NAME = "connected_device_name";
     
     // Constants that indicate command to computer
-    public static final String LEFT = "VK_LEFT";
-    public static final String DOWN = "VK_DOWN";
-    public static final String UP = "VK_UP";
-    public static final String RIGHT = "VK_RIGHT";
+    public static final String LEFT = "LEFT";
+    public static final String DOWN = "DOWN";
+    public static final String UP = "UP";
+    public static final String RIGHT = "RIGHT";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

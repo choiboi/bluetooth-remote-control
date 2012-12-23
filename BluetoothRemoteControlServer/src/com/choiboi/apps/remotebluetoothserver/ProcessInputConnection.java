@@ -14,8 +14,10 @@ public class ProcessInputConnection implements Runnable {
     
     // Command constants sent from the mobile device.
     private static final String EXIT_CMD = "EXIT";
-    private static final String KEY_RIGHT = "VK_RIGHT";
-    private static final String KEY_LEFT = "VK_LEFT";
+    private static final String KEY_LEFT = "LEFT";
+    private static final String KEY_DOWN = "DOWN";
+    private static final String KEY_UP = "UP";
+    private static final String KEY_RIGHT = "RIGHT";
     
     // Regex for paring commands
     private static final String COLON = ":";
@@ -68,13 +70,23 @@ public class ProcessInputConnection implements Runnable {
             switch (inputCmd[1]) {
             case KEY_RIGHT:
                 robot.keyPress(KeyEvent.VK_RIGHT);
-                System.out.println(inputCmd[0] + ": " + "RIGHT");
+                System.out.println(inputCmd[0] + ": " + inputCmd[1]);
                 robot.keyRelease(KeyEvent.VK_RIGHT);
                 break;
             case KEY_LEFT:
                 robot.keyPress(KeyEvent.VK_LEFT);
-                System.out.println(inputCmd[0] + ": " + "LEFT");
+                System.out.println(inputCmd[0] + ": " + inputCmd[1]);
                 robot.keyRelease(KeyEvent.VK_LEFT);
+                break;
+            case KEY_UP:
+                robot.keyPress(KeyEvent.VK_UP);
+                System.out.println(inputCmd[0] + ": " + inputCmd[1]);
+                robot.keyRelease(KeyEvent.VK_UP);
+                break;
+            case KEY_DOWN:
+                robot.keyPress(KeyEvent.VK_DOWN);
+                System.out.println(inputCmd[0] + ": " + inputCmd[1]);
+                robot.keyRelease(KeyEvent.VK_DOWN);
                 break;
             }
         } catch(Exception e) {
