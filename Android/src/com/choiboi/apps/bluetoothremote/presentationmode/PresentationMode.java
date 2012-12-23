@@ -1,10 +1,14 @@
 package com.choiboi.apps.bluetoothremote.presentationmode;
 
 import android.app.Activity;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Window;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.choiboi.apps.bluetoothremote.ActivitiesBridge;
@@ -23,6 +27,7 @@ public class PresentationMode extends Activity {
 
     // Layout
     private TextView mTitle;
+    private ImageView mPresSlide;
 
     // Values for retrieving data from Bundle
     public static final String BLUETOOTH_SERVICE = "BluetoothService";
@@ -32,12 +37,12 @@ public class PresentationMode extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.e(TAG, "++ onCreate ++");
-        
+
         // Setup the layout
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.presentation_screen);
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.custom_title);
-        
+
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             mConnectedDeviceName = bundle.getString(CONNECTED_DEVICE_NAME);
@@ -50,10 +55,12 @@ public class PresentationMode extends Activity {
         mTitle.setText(R.string.title_connected_to);
         mTitle.append(" " + mConnectedDeviceName);
 
+        mPresSlide = (ImageView) findViewById(R.id.slide_image);
+
         mBluetoothService = (BluetoothService) ActivitiesBridge.getObject();
         mLocalDeviceName = mBluetoothService.getLocalDeviceName();
     }
-    
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         Log.e(TAG, "++ onKeyDown ++");

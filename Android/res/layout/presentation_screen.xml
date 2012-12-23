@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/presentation_mode"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/black"
@@ -12,8 +14,54 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="false"
+        android:layout_alignParentTop="true"
         android:text="@string/presentation_title"
         android:textSize="20sp" />
+
+    <ImageView
+        android:id="@+id/slide_image"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/presentation_control_panel"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/presentation_mode_title"
+        android:contentDescription="@string/image_desc"
+        android:src="@drawable/ic_launcher" />
+
+    <LinearLayout
+        android:id="@+id/presentation_control_panel"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true" >
+
+        <Button
+            android:id="@+id/left_arrow"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/left_arrow" />
+
+        <Button
+            android:id="@+id/down_arrow"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/down_arrow" />
+
+        <Button
+            android:id="@+id/up_arrow"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/up_arrow" />
+
+        <Button
+            android:id="@+id/right_arrow"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/right_arrow" />
+    </LinearLayout>
 
 </RelativeLayout>

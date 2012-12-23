@@ -27,5 +27,10 @@
     
     <!-- PresentationMode -->
     <string name="presentation_title">Presentation Mode</string>
+    <string name="image_desc">Displays image of the current slide.</string>
+    <string name="up_arrow">UP</string>
+    <string name="down_arrow">DOWN</string>
+    <string name="right_arrow">RIGHT</string>
+    <string name="left_arrow">LEFT</string>
     
 </resources>
