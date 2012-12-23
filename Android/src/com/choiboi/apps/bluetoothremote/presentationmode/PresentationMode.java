@@ -1,14 +1,12 @@
 package com.choiboi.apps.bluetoothremote.presentationmode;
 
 import android.app.Activity;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.choiboi.apps.bluetoothremote.ActivitiesBridge;
@@ -32,6 +30,12 @@ public class PresentationMode extends Activity {
     // Values for retrieving data from Bundle
     public static final String BLUETOOTH_SERVICE = "BluetoothService";
     public static final String CONNECTED_DEVICE_NAME = "connected_device_name";
+    
+    // Constants that indicate command to computer
+    public static final String LEFT = "VK_LEFT";
+    public static final String DOWN = "VK_DOWN";
+    public static final String UP = "VK_UP";
+    public static final String RIGHT = "VK_RIGHT";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,20 +65,43 @@ public class PresentationMode extends Activity {
         mLocalDeviceName = mBluetoothService.getLocalDeviceName();
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Log.e(TAG, "++ onKeyDown ++");
+    /*
+     * Invoked whenever the left button is pressed.
+     */
+    public void leftArrow(View v) {
+        Log.i(TAG, "--- leftArrow ---");
 
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-            String command = mLocalDeviceName + ":" + BluetoothService.VOL_UP;
-            mBluetoothService.write(command.getBytes());
-            return true;
-        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            String command = mLocalDeviceName + ":" + BluetoothService.VOL_DOWN;
-            mBluetoothService.write(command.getBytes());
-            return true;
-        }
+        String command = mLocalDeviceName + ":" + LEFT;
+        mBluetoothService.write(command.getBytes());
+    }
 
-        return super.onKeyDown(keyCode, event);
+    /*
+     * Invoked whenever the down button is pressed.
+     */
+    public void downArrow(View v) {
+        Log.i(TAG, "--- downArrow ---");
+
+        String command = mLocalDeviceName + ":" + DOWN;
+        mBluetoothService.write(command.getBytes());
+    }
+
+    /*
+     * Invoked whenever the up button is pressed.
+     */
+    public void upArrow(View v) {
+        Log.i(TAG, "--- upArrow ---");
+
+        String command = mLocalDeviceName + ":" + UP;
+        mBluetoothService.write(command.getBytes());
+    }
+
+    /*
+     * Invoked whenever the right button is pressed.
+     */
+    public void rightArrow(View v) {
+        Log.i(TAG, "--- rightArrow ---");
+
+        String command = mLocalDeviceName + ":" + RIGHT;
+        mBluetoothService.write(command.getBytes());
     }
 }

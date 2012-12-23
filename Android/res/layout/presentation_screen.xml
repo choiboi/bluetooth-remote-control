@@ -40,28 +40,32 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/left_arrow" />
+            android:text="@string/left_arrow" 
+            android:onClick="leftArrow"/>
 
         <Button
             android:id="@+id/down_arrow"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/down_arrow" />
+            android:text="@string/down_arrow" 
+            android:onClick="downArrow"/>
 
         <Button
             android:id="@+id/up_arrow"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/up_arrow" />
+            android:text="@string/up_arrow" 
+            android:onClick="upArrow"/>
 
         <Button
             android:id="@+id/right_arrow"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/right_arrow" />
+            android:text="@string/right_arrow" 
+            android:onClick="rightArrow"/>
     </LinearLayout>
 
 </RelativeLayout>

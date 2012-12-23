@@ -38,8 +38,6 @@ public class BluetoothService {
 
     // Constants that indicate command to computer
     public static final String EXIT_CMD = "EXIT";
-    public static final String VOL_UP = "VK_RIGHT";
-    public static final String VOL_DOWN = "VK_LEFT";
 
     public BluetoothService(Context context, Handler handler) {
         Log.e(TAG, "++ BluetoothService ++");
