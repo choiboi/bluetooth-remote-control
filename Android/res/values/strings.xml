@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    
+    <!-- Application -->
+    <string name="app_name">Bluetooth Remote Control</string>
+    
+    <!--  Options Menu -->
+    <string name="connect">Connect a Device</string>
+    <string name="discoverable">Make Discoverable</string>
+    
+    <!-- Bluetooth Remote -->
+    <string name="title_connected_to">CONNECTED TO: </string>
+    <string name="title_connecting">CONNECTING...</string>
+    <string name="title_not_connected">NOT CONNECTED</string>
+    <string name="btn_find">Find Device</string>
+    <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Bluetooth Remote Control</string>
+    
+    <!-- DeviceListActivity -->
+    <string name="title_paired_devices">Paired Devices</string>
+    <string name="title_other_devices">Other Available Devices</string>
+    <string name="scanning">Scanning for Devices...</string>
+    <string name="select_device">Select a Device to Connect</string>
+    <string name="none_found">No Devices Found</string>
+    <string name="none_paired">No Devices Have Been Paired</string>
+    <string name="button_scan">Scan for Devices</string>
+    
+    <!-- PresentationMode -->
+    <string name="presentation_title">Presentation Mode</string>
+    <string name="image_desc">Displays image of the current slide.</string>
+    <string name="up_arrow">UP</string>
+    <string name="down_arrow">DOWN</string>
+    <string name="right_arrow">RIGHT</string>
+    <string name="left_arrow">LEFT</string>
+    
+</resources>
