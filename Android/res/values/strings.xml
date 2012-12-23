@@ -32,5 +32,6 @@
     <string name="down_arrow">DOWN</string>
     <string name="right_arrow">RIGHT</string>
     <string name="left_arrow">LEFT</string>
+    <string name="fullscreen">FULLSCREEN</string>
     
 </resources>
