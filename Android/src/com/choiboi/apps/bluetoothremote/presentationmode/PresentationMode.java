@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import com.choiboi.apps.bluetoothremote.ActivitiesBridge;
 import com.choiboi.apps.bluetoothremote.BluetoothService;
-import com.choiboi.apps.bluetoothremote.DeviceListActivity;
 import com.choiboi.apps.bluetoothremote.R;
 
 public class PresentationMode extends Activity {
@@ -26,7 +25,6 @@ public class PresentationMode extends Activity {
 
     // Layout
     private TextView mTitle;
-    private TextView mModeTitle;
 
     // Values for retrieving data from Bundle
     public static final String BLUETOOTH_SERVICE = "BluetoothService";
@@ -63,8 +61,6 @@ public class PresentationMode extends Activity {
         if (bundle != null) {
             mConnectedDeviceName = bundle.getString(CONNECTED_DEVICE_NAME);
         }
-        
-        mModeTitle = (TextView) findViewById(R.id.presentation_mode_title);
 
         // Setup the custom title
         mTitle = (TextView) findViewById(R.id.title_left_text);
@@ -140,12 +136,17 @@ public class PresentationMode extends Activity {
         mBluetoothService.write(command.getBytes());
     }
     
+    /*
+     * Invoked whenever an Activity that is looking for result is finished.
+     * 
+     * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
+     */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.i(TAG, "--- onActivityResult ---");
 
-        mModeTitle.setText(R.string.presentation_title);
         if (resultCode == Activity.RESULT_OK) {
             String progSelection = data.getExtras().getString(PROGRAM);
+            TextView mModeTitle = (TextView) findViewById(R.id.presentation_mode_title);
             mModeTitle.append(" " + progSelection);
             
             if (progSelection.equals(getResources().getString(R.string.micro_ppt))) {

@@ -14,9 +14,6 @@ import android.widget.TextView;
 import com.choiboi.apps.bluetoothremote.R;
 
 public class ProgramSelectActivity extends Activity {
-    
-    // Debugging
-    private static final String TAG = "ProgramSelectActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

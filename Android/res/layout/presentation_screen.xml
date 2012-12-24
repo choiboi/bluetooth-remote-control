@@ -10,6 +10,7 @@
 
     <TextView
         android:id="@+id/presentation_mode_title"
+        android:text="@string/presentation_title"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
