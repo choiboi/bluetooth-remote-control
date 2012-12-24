@@ -1,6 +1,7 @@
 package com.choiboi.apps.bluetoothremote.presentationmode;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 
 import com.choiboi.apps.bluetoothremote.ActivitiesBridge;
 import com.choiboi.apps.bluetoothremote.BluetoothService;
+import com.choiboi.apps.bluetoothremote.DeviceListActivity;
 import com.choiboi.apps.bluetoothremote.R;
 
 public class PresentationMode extends Activity {
@@ -20,13 +22,19 @@ public class PresentationMode extends Activity {
     private BluetoothService mBluetoothService;
     private String mConnectedDeviceName;
     private String mLocalDeviceName;
+    private String mPresentationProgram = "";
 
     // Layout
     private TextView mTitle;
+    private TextView mModeTitle;
 
     // Values for retrieving data from Bundle
     public static final String BLUETOOTH_SERVICE = "BluetoothService";
     public static final String CONNECTED_DEVICE_NAME = "connected_device_name";
+    public static final String PROGRAM = "program";
+    
+    // Intent request codes
+    private static final int REQUEST_PROGRAM_USED = 1;
     
     // Constants that indicate command to computer
     private static final String LEFT = "LEFT";
@@ -55,6 +63,8 @@ public class PresentationMode extends Activity {
         if (bundle != null) {
             mConnectedDeviceName = bundle.getString(CONNECTED_DEVICE_NAME);
         }
+        
+        mModeTitle = (TextView) findViewById(R.id.presentation_mode_title);
 
         // Setup the custom title
         mTitle = (TextView) findViewById(R.id.title_left_text);
@@ -65,6 +75,9 @@ public class PresentationMode extends Activity {
 
         mBluetoothService = (BluetoothService) ActivitiesBridge.getObject();
         mLocalDeviceName = mBluetoothService.getLocalDeviceName();
+        
+        Intent serverIntent = new Intent(this, ProgramSelectActivity.class);
+        startActivityForResult(serverIntent, REQUEST_PROGRAM_USED);
     }
 
     /*
@@ -113,7 +126,7 @@ public class PresentationMode extends Activity {
     public void goFullscreenPresentation(View v) {
         Log.i(TAG, "--- goFullscreenPresentation ---");
         
-        String command = mLocalDeviceName + ":" + GO_FULLSCREEN + ":" + BROWSER;
+        String command = mLocalDeviceName + ":" + GO_FULLSCREEN + ":" + mPresentationProgram;
         mBluetoothService.write(command.getBytes());
     }
     
@@ -123,7 +136,25 @@ public class PresentationMode extends Activity {
     public void exitFullscreenPresentation(View v) {
         Log.i(TAG, "--- exitFullscreenPresentation ---");
         
-        String command = mLocalDeviceName + ":" + EXIT_FULLSCREEN + ":" + BROWSER;
+        String command = mLocalDeviceName + ":" + EXIT_FULLSCREEN + ":" + mPresentationProgram;
         mBluetoothService.write(command.getBytes());
+    }
+    
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.i(TAG, "--- onActivityResult ---");
+
+        mModeTitle.setText(R.string.presentation_title);
+        if (resultCode == Activity.RESULT_OK) {
+            String progSelection = data.getExtras().getString(PROGRAM);
+            mModeTitle.append(" " + progSelection);
+            
+            if (progSelection.equals(getResources().getString(R.string.micro_ppt))) {
+                mPresentationProgram = MICROSOFT_POWERPOINT;
+            } else if (progSelection.equals(getResources().getString(R.string.adobe_pdf))) {
+                mPresentationProgram = ADOBE_READER;
+            } else if (progSelection.equals(getResources().getString(R.string.browser))) {
+                mPresentationProgram = BROWSER;
+            }
+        }
     }
 }

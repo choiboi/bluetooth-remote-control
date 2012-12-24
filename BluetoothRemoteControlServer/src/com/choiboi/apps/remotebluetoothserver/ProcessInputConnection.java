@@ -177,8 +177,8 @@ public class ProcessInputConnection implements Runnable {
     private void microPPTKeyEventExitFullscreen() {
         try {
             Robot robot = new Robot();
-            robot.keyPress(KeyEvent.VK_F5);
-            robot.keyRelease(KeyEvent.VK_F5);
+            robot.keyPress(KeyEvent.VK_ESCAPE);
+            robot.keyRelease(KeyEvent.VK_ESCAPE);
         } catch (Exception e) {
             e.printStackTrace();
             return;
