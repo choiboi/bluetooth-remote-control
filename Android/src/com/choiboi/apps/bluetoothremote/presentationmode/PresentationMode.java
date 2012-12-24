@@ -29,10 +29,17 @@ public class PresentationMode extends Activity {
     public static final String CONNECTED_DEVICE_NAME = "connected_device_name";
     
     // Constants that indicate command to computer
-    public static final String LEFT = "LEFT";
-    public static final String DOWN = "DOWN";
-    public static final String UP = "UP";
-    public static final String RIGHT = "RIGHT";
+    private static final String LEFT = "LEFT";
+    private static final String DOWN = "DOWN";
+    private static final String UP = "UP";
+    private static final String RIGHT = "RIGHT";
+    private static final String GO_FULLSCREEN = "GO_FULLSCREEN";
+    private static final String EXIT_FULLSCREEN = "EXIT_FULLSCREEN";
+    
+    // Presentation program constants also used as commands sent to computer
+    private static final String BROWSER = "BROWSER";
+    private static final String MICROSOFT_POWERPOINT = "MICRO_PPT";
+    private static final String ADOBE_READER = "ADOBE_PDF";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +104,26 @@ public class PresentationMode extends Activity {
         Log.i(TAG, "--- rightArrow ---");
 
         String command = mLocalDeviceName + ":" + RIGHT;
+        mBluetoothService.write(command.getBytes());
+    }
+    
+    /*
+     * Invoked whenever the go fullscreen button is pressed.
+     */
+    public void goFullscreenPresentation(View v) {
+        Log.i(TAG, "--- goFullscreenPresentation ---");
+        
+        String command = mLocalDeviceName + ":" + GO_FULLSCREEN + ":" + BROWSER;
+        mBluetoothService.write(command.getBytes());
+    }
+    
+    /*
+     * Invoked whenever the exit fullscreen button is pressed.
+     */
+    public void exitFullscreenPresentation(View v) {
+        Log.i(TAG, "--- exitFullscreenPresentation ---");
+        
+        String command = mLocalDeviceName + ":" + EXIT_FULLSCREEN + ":" + BROWSER;
         mBluetoothService.write(command.getBytes());
     }
 }

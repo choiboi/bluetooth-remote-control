@@ -75,11 +75,20 @@
         android:layout_alignParentLeft="true" >
 
         <Button
-            android:id="@+id/fullscreen"
+            android:id="@+id/go_fullscreen"
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:text="@string/fullscreen" />
+            android:onClick="goFullscreenPresentation"
+            android:text="@string/go_fullscreen"/>
+        
+        <Button
+            android:id="@+id/exit_fullscreen"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:onClick="exitFullscreenPresentation"
+            android:text="@string/exit_fullscreen"/>
     </LinearLayout>
 
 </RelativeLayout>
