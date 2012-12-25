@@ -40,5 +40,14 @@
             android:theme="@android:style/Theme" 
             android:label="@string/app_name">
         </activity>
+        
+        <activity
+            android:name=".presentationmode.ProgramSelectActivity"
+            android:configChanges="keyboardHidden"
+            android:label="@string/title_program_list"
+            android:theme="@android:style/Theme.Dialog"
+            android:screenOrientation="portrait">
+        </activity>
+        
     </application>
 </manifest>

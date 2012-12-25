@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/presentation_mode"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_height="wrap_content"
     android:background="@color/black"
     android:orientation="vertical"
     tools:context=".presentationmode.PresentationMode" >
 
     <TextView
         android:id="@+id/presentation_mode_title"
+        android:text="@string/presentation_title"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:text="@string/presentation_title"
         android:textSize="20sp" />
 
     <ImageView
@@ -31,41 +30,65 @@
     <LinearLayout
         android:id="@+id/presentation_control_panel"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_height="60dp"
+        android:layout_above="@+id/presentation_fullscreen"
         android:layout_alignParentLeft="true" >
 
         <Button
             android:id="@+id/left_arrow"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:layout_weight="1"
-            android:text="@string/left_arrow" 
-            android:onClick="leftArrow"/>
+            android:onClick="leftArrow"
+            android:text="@string/left_arrow" />
 
         <Button
             android:id="@+id/down_arrow"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:layout_weight="1"
-            android:text="@string/down_arrow" 
-            android:onClick="downArrow"/>
+            android:onClick="downArrow"
+            android:text="@string/down_arrow" />
 
         <Button
             android:id="@+id/up_arrow"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:layout_weight="1"
-            android:text="@string/up_arrow" 
-            android:onClick="upArrow"/>
+            android:onClick="upArrow"
+            android:text="@string/up_arrow" />
 
         <Button
             android:id="@+id/right_arrow"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:layout_weight="1"
-            android:text="@string/right_arrow" 
-            android:onClick="rightArrow"/>
+            android:onClick="rightArrow"
+            android:text="@string/right_arrow" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/presentation_fullscreen"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true" >
+
+        <Button
+            android:id="@+id/go_fullscreen"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:onClick="goFullscreenPresentation"
+            android:text="@string/go_fullscreen"/>
+        
+        <Button
+            android:id="@+id/exit_fullscreen"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:onClick="exitFullscreenPresentation"
+            android:text="@string/exit_fullscreen"/>
     </LinearLayout>
 
 </RelativeLayout>
