@@ -1,12 +1,14 @@
 package com.choiboi.apps.bluetoothremote.presentationmode;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.choiboi.apps.bluetoothremote.ActivitiesBridge;
@@ -22,20 +24,31 @@ public class PresentationMode extends Activity {
     private BluetoothService mBluetoothService;
     private String mConnectedDeviceName;
     private String mLocalDeviceName;
+    private String mPresentationProgram = "";
 
     // Layout
     private TextView mTitle;
-    private ImageView mPresSlide;
 
     // Values for retrieving data from Bundle
     public static final String BLUETOOTH_SERVICE = "BluetoothService";
     public static final String CONNECTED_DEVICE_NAME = "connected_device_name";
+    public static final String PROGRAM = "program";
+    
+    // Intent request codes
+    private static final int REQUEST_PROGRAM_USED = 1;
     
     // Constants that indicate command to computer
-    public static final String LEFT = "LEFT";
-    public static final String DOWN = "DOWN";
-    public static final String UP = "UP";
-    public static final String RIGHT = "RIGHT";
+    private static final String LEFT = "LEFT";
+    private static final String DOWN = "DOWN";
+    private static final String UP = "UP";
+    private static final String RIGHT = "RIGHT";
+    private static final String GO_FULLSCREEN = "GO_FULLSCREEN";
+    private static final String EXIT_FULLSCREEN = "EXIT_FULLSCREEN";
+    
+    // Presentation program constants also used as commands sent to computer
+    private static final String BROWSER = "BROWSER";
+    private static final String MICROSOFT_POWERPOINT = "MICRO_PPT";
+    private static final String ADOBE_READER = "ADOBE_PDF";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,10 +72,18 @@ public class PresentationMode extends Activity {
         mTitle.setText(R.string.title_connected_to);
         mTitle.append(" " + mConnectedDeviceName);
 
-        mPresSlide = (ImageView) findViewById(R.id.slide_image);
-
         mBluetoothService = (BluetoothService) ActivitiesBridge.getObject();
         mLocalDeviceName = mBluetoothService.getLocalDeviceName();
+        
+        // Ask user which presentation program they will be using
+        selectProgramDialog();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.presentation_mode_menu, menu);
+        return true;
     }
 
     /*
@@ -103,5 +124,69 @@ public class PresentationMode extends Activity {
 
         String command = mLocalDeviceName + ":" + RIGHT;
         mBluetoothService.write(command.getBytes());
+    }
+    
+    /*
+     * Invoked whenever the go fullscreen button is pressed.
+     */
+    public void goFullscreenPresentation(View v) {
+        Log.i(TAG, "--- goFullscreenPresentation ---");
+        
+        String command = mLocalDeviceName + ":" + GO_FULLSCREEN + ":" + mPresentationProgram;
+        mBluetoothService.write(command.getBytes());
+    }
+    
+    /*
+     * Invoked whenever the exit fullscreen button is pressed.
+     */
+    public void exitFullscreenPresentation(View v) {
+        Log.i(TAG, "--- exitFullscreenPresentation ---");
+        
+        String command = mLocalDeviceName + ":" + EXIT_FULLSCREEN + ":" + mPresentationProgram;
+        mBluetoothService.write(command.getBytes());
+    }
+    
+    /*
+     * This will start an Activity which opens up a dialog asking the user to
+     * select which presentation program they will be using.
+     */
+    private void selectProgramDialog() {
+        Intent serverIntent = new Intent(this, ProgramSelectActivity.class);
+        startActivityForResult(serverIntent, REQUEST_PROGRAM_USED);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+        case R.id.change_presentation_program:
+            selectProgramDialog();
+            return true;
+        }
+        
+        return false;
+    }
+
+    /*
+     * Invoked whenever an Activity that is looking for result is finished.
+     * 
+     * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
+     */
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.i(TAG, "--- onActivityResult ---");
+
+        if (resultCode == Activity.RESULT_OK) {
+            String progSelection = data.getExtras().getString(PROGRAM);
+            TextView mModeTitle = (TextView) findViewById(R.id.presentation_mode_title);
+            mModeTitle.setText(R.string.presentation_title);
+            mModeTitle.append(" " + progSelection);
+            
+            if (progSelection.equals(getResources().getString(R.string.micro_ppt))) {
+                mPresentationProgram = MICROSOFT_POWERPOINT;
+            } else if (progSelection.equals(getResources().getString(R.string.adobe_pdf))) {
+                mPresentationProgram = ADOBE_READER;
+            } else if (progSelection.equals(getResources().getString(R.string.browser))) {
+                mPresentationProgram = BROWSER;
+            }
+        }
     }
 }
