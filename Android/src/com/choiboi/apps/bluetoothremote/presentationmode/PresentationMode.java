@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
@@ -72,8 +75,15 @@ public class PresentationMode extends Activity {
         mBluetoothService = (BluetoothService) ActivitiesBridge.getObject();
         mLocalDeviceName = mBluetoothService.getLocalDeviceName();
         
-        Intent serverIntent = new Intent(this, ProgramSelectActivity.class);
-        startActivityForResult(serverIntent, REQUEST_PROGRAM_USED);
+        // Ask user which presentation program they will be using
+        selectProgramDialog();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.presentation_mode_menu, menu);
+        return true;
     }
 
     /*
@@ -137,6 +147,26 @@ public class PresentationMode extends Activity {
     }
     
     /*
+     * This will start an Activity which opens up a dialog asking the user to
+     * select which presentation program they will be using.
+     */
+    private void selectProgramDialog() {
+        Intent serverIntent = new Intent(this, ProgramSelectActivity.class);
+        startActivityForResult(serverIntent, REQUEST_PROGRAM_USED);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+        case R.id.change_presentation_program:
+            selectProgramDialog();
+            return true;
+        }
+        
+        return false;
+    }
+
+    /*
      * Invoked whenever an Activity that is looking for result is finished.
      * 
      * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
@@ -147,6 +177,7 @@ public class PresentationMode extends Activity {
         if (resultCode == Activity.RESULT_OK) {
             String progSelection = data.getExtras().getString(PROGRAM);
             TextView mModeTitle = (TextView) findViewById(R.id.presentation_mode_title);
+            mModeTitle.setText(R.string.presentation_title);
             mModeTitle.append(" " + progSelection);
             
             if (progSelection.equals(getResources().getString(R.string.micro_ppt))) {
