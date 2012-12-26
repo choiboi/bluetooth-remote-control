@@ -1,16 +1,23 @@
 package com.choiboi.apps.remotebluetoothserver;
 
+import java.awt.Rectangle;
 import java.awt.Robot;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
+import javax.imageio.ImageIO;
 import javax.microedition.io.StreamConnection;
 
 public class ProcessInputConnection implements Runnable {
     
     // Member fields
     private StreamConnection connection;
+    private OutputStream mOutputStream;
     private String mOS = "";
     
     // Command constants sent from the mobile device.
@@ -45,6 +52,8 @@ public class ProcessInputConnection implements Runnable {
             // Open up InputStream and receive data
             InputStream inputStream = connection.openDataInputStream();
             System.out.println("Waiting for commands.....");
+            
+            mOutputStream = connection.openDataOutputStream();
             while (true) {
                 byte[] buffer = new byte[2048];
                 int bytes = inputStream.read(buffer);
@@ -67,6 +76,24 @@ public class ProcessInputConnection implements Runnable {
             return;
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    
+    private void sendSlideScreenshot() {
+        try {
+            Robot r = new Robot();
+            Rectangle captureSize = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
+            BufferedImage bImg = r.createScreenCapture(captureSize);
+            
+            ImageIO.write(bImg, "png", mOutputStream);
+            mOutputStream.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
         }
     }
     
@@ -114,6 +141,8 @@ public class ProcessInputConnection implements Runnable {
             e.printStackTrace();
             return;
         }
+        
+        sendSlideScreenshot();
     }
     
     /*
