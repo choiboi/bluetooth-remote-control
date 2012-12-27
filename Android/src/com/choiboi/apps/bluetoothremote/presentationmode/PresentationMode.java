@@ -52,6 +52,7 @@ public class PresentationMode extends Activity {
     private static final String RIGHT = "RIGHT";
     private static final String GO_FULLSCREEN = "GO_FULLSCREEN";
     private static final String EXIT_FULLSCREEN = "EXIT_FULLSCREEN";
+    private static final String APP_STARTED = "APP_STARTED";
     
     // Presentation program constants also used as commands sent to computer
     private static final String BROWSER = "BROWSER";
@@ -90,6 +91,14 @@ public class PresentationMode extends Activity {
     }
 
     @Override
+	protected void onStart() {
+		super.onStart();
+		
+		String command = mLocalDeviceName + ":" + APP_STARTED;
+		mBluetoothService.write(command.getBytes());
+	}
+
+	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.presentation_mode_menu, menu);

@@ -28,6 +28,7 @@ public class ProcessInputConnection implements Runnable {
     private static final String KEY_RIGHT = "RIGHT";
     private static final String GO_FULLSCREEN = "GO_FULLSCREEN";
     private static final String EXIT_FULLSCREEN = "EXIT_FULLSCREEN";
+    private static final String APP_STARTED = "APP_STARTED";
     
     // Regex for parcing commands
     private static final String COLON = ":";
@@ -79,24 +80,6 @@ public class ProcessInputConnection implements Runnable {
         }
     }
     
-    private void sendSlideScreenshot() {
-        try {
-            Robot r = new Robot();
-            Rectangle captureSize = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
-            BufferedImage bImg = r.createScreenCapture(captureSize);
-            
-            ImageIO.write(bImg, "png", mOutputStream);
-            mOutputStream.flush();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
-    }
-    
     /*
      * Generate the proper key event from the user input on the
      * mobile device.
@@ -121,6 +104,9 @@ public class ProcessInputConnection implements Runnable {
         case EXIT_FULLSCREEN:
             handleFullScreenCmd(inputCmd);
             break;
+        case APP_STARTED:
+        	sendSlideScreenshot();
+        	break;
         }
     }
     
@@ -141,7 +127,6 @@ public class ProcessInputConnection implements Runnable {
             e.printStackTrace();
             return;
         }
-        
         sendSlideScreenshot();
     }
     
@@ -181,6 +166,7 @@ public class ProcessInputConnection implements Runnable {
             }
         }
         
+        sendSlideScreenshot();
         System.out.println(inputCmd[0] + ": " + inputCmd[1]);
     }
     
@@ -264,6 +250,32 @@ public class ProcessInputConnection implements Runnable {
             robot.keyRelease(KeyEvent.VK_F);
             robot.keyRelease(KeyEvent.VK_SHIFT);
             robot.keyRelease(KeyEvent.VK_META);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+    
+    /*
+     * Send out a screenshot of the slide to the device.
+     */
+    private void sendSlideScreenshot() {
+        try {
+        	// Wait until all the animation on the slides have been completed.
+        	Thread.sleep(800);
+        	
+        	// Take a screenshot of the primary screen
+            Robot r = new Robot();
+            Rectangle captureSize = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
+            BufferedImage bImg = r.createScreenCapture(captureSize);
+            
+            // Send image to device via Bluetooth
+            ImageIO.write(bImg, "png", mOutputStream);
+            mOutputStream.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
         } catch (Exception e) {
             e.printStackTrace();
             return;
