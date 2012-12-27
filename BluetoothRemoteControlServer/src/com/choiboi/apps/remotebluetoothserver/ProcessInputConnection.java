@@ -30,6 +30,10 @@ public class ProcessInputConnection implements Runnable {
     private static final String EXIT_FULLSCREEN = "EXIT_FULLSCREEN";
     private static final String APP_STARTED = "APP_STARTED";
     
+    // Acknowledgement to the device
+    private static final String ACKNOWLEDGE_SENDING_IMG = "SENDING_IMG";
+    private static final String ACKNOWLEDGE_IMG_SENT = "IMG_SENT";
+    
     // Regex for parcing commands
     private static final String COLON = ":";
     
@@ -261,6 +265,9 @@ public class ProcessInputConnection implements Runnable {
      */
     private void sendSlideScreenshot() {
         try {
+        	// Send acknowledgment that an image will be sent
+        	mOutputStream.write(ACKNOWLEDGE_SENDING_IMG.getBytes());
+        	
         	// Wait until all the animation on the slides have been completed.
         	Thread.sleep(800);
         	
@@ -272,6 +279,9 @@ public class ProcessInputConnection implements Runnable {
             // Send image to device via Bluetooth
             ImageIO.write(bImg, "png", mOutputStream);
             mOutputStream.flush();
+            
+            // Send acknowledgment that transfer is done
+            mOutputStream.write(ACKNOWLEDGE_IMG_SENT.getBytes());
 
         } catch (IOException e) {
             e.printStackTrace();
