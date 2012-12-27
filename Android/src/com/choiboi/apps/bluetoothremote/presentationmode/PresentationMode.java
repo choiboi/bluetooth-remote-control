@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.choiboi.apps.bluetoothremote.ActivitiesBridge;
 import com.choiboi.apps.bluetoothremote.BluetoothService;
@@ -43,6 +44,7 @@ public class PresentationMode extends Activity {
     
     // Message types sent from BluetoothService Handler
     public static final int RECEIVED_IMAGE = 1;
+    public static final int CONNECTION_LOST = 2;
     
     // Constants that indicate command to computer
     private static final String LEFT = "LEFT";
@@ -200,9 +202,9 @@ public class PresentationMode extends Activity {
 
         if (resultCode == Activity.RESULT_OK) {
             String progSelection = data.getExtras().getString(PROGRAM);
-            TextView mModeTitle = (TextView) findViewById(R.id.presentation_mode_title);
-            mModeTitle.setText(R.string.presentation_title);
-            mModeTitle.append(" " + progSelection);
+            TextView modeTitle = (TextView) findViewById(R.id.presentation_mode_title);
+            modeTitle.setText(R.string.presentation_title);
+            modeTitle.append(" " + progSelection);
             
             if (progSelection.equals(getResources().getString(R.string.micro_ppt))) {
                 mPresentationProgram = MICROSOFT_POWERPOINT;
@@ -227,6 +229,10 @@ public class PresentationMode extends Activity {
                 ImageView tv = (ImageView) findViewById(R.id.slide_image);
                 tv.setImageBitmap(b);
                 break;
+            case CONNECTION_LOST:
+            	mTitle.setText(R.string.title_not_connected);
+            	finish();
+            	break;
             }
         }
     };

@@ -233,7 +233,11 @@ public class BluetoothService {
         bundle.putString(BluetoothRemote.TOAST, "Device connection was lost");
         msg.setData(bundle);
         mBtRemoteHandler.sendMessage(msg);
-
+        
+        // Tell PresentationMode Activity that connection has been lost
+        if (mPresModeHandler != null) {
+        	mPresModeHandler.obtainMessage(PresentationMode.CONNECTION_LOST).sendToTarget();
+        }
     }
 
     /*
@@ -357,6 +361,7 @@ public class BluetoothService {
 
         public void run() {
             Log.e(TAG, "+++ BEGIN mConnectedThread +++");
+            byte[] buffer = new byte[256];
 
             // Keep listening to the InputStream while connected
             while (true) {
@@ -371,9 +376,12 @@ public class BluetoothService {
 					if (mPresModeHandler != null) {
 						mPresModeHandler.obtainMessage(PresentationMode.RECEIVED_IMAGE, -1, -1, bmp).sendToTarget();
 					}
+					
+					mmInStream.read(buffer);
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
                     connectionLost();
+                    BluetoothService.this.start();
                     break;
                 }
             }
@@ -381,6 +389,7 @@ public class BluetoothService {
 
         /*
          * Write to the connected OutStream.
+         * 
          * @param buffer The bytes to write
          */
         public void write(byte[] buffer) {
