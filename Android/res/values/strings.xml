@@ -38,6 +38,8 @@
     <string name="micro_ppt">Microsoft PowerPoint</string>
     <string name="adobe_pdf">Adobe Reader</string>
     <string name="browser">Browser - Chrome, IE, and Firefox</string>
+    <string name="slide_updated">Slide Updated!!</string>
+    <string name="updating_slide">Updating Slide....</string>
     
     <!-- PresentationMode Menu -->
     <string name="change_program">Change Presentation Program</string>

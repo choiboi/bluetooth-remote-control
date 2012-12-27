@@ -44,6 +44,9 @@ public class PresentationMode extends Activity {
     
     // Message types sent from BluetoothService Handler
     public static final int RECEIVED_IMAGE = 1;
+    public static final int CONNECTION_LOST = 2;
+    public static final int IMAGE_TRANSFER_DONE = 3;
+    public static final int IMAGE_TRANSFER_START = 4;
     
     // Constants that indicate command to computer
     private static final String LEFT = "LEFT";
@@ -86,16 +89,22 @@ public class PresentationMode extends Activity {
         
         // Ask user which presentation program they will be using
         selectProgramDialog();
-        
-        mBluetoothService.setPresModeHandler(mHandler);
     }
 
-    @Override
+	@Override
 	protected void onStart() {
 		super.onStart();
-		
+		mBluetoothService.setPresModeHandler(mHandler);
+
 		String command = mLocalDeviceName + ":" + APP_STARTED;
 		mBluetoothService.write(command.getBytes());
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+
+		mBluetoothService.removePresModeHandler();
 	}
 
 	@Override
@@ -195,9 +204,9 @@ public class PresentationMode extends Activity {
 
         if (resultCode == Activity.RESULT_OK) {
             String progSelection = data.getExtras().getString(PROGRAM);
-            TextView mModeTitle = (TextView) findViewById(R.id.presentation_mode_title);
-            mModeTitle.setText(R.string.presentation_title);
-            mModeTitle.append(" " + progSelection);
+            TextView modeTitle = (TextView) findViewById(R.id.presentation_mode_title);
+            modeTitle.setText(R.string.presentation_title);
+            modeTitle.append(" " + progSelection);
             
             if (progSelection.equals(getResources().getString(R.string.micro_ppt))) {
                 mPresentationProgram = MICROSOFT_POWERPOINT;
@@ -222,6 +231,16 @@ public class PresentationMode extends Activity {
                 ImageView tv = (ImageView) findViewById(R.id.slide_image);
                 tv.setImageBitmap(b);
                 break;
+            case CONNECTION_LOST:
+            	mTitle.setText(R.string.title_not_connected);
+            	finish();
+            	break;
+            case IMAGE_TRANSFER_DONE:
+            	Toast.makeText(getApplicationContext(), R.string.slide_updated, Toast.LENGTH_SHORT).show();
+            	break;
+            case IMAGE_TRANSFER_START:
+            	Toast.makeText(getApplicationContext(), R.string.updating_slide, Toast.LENGTH_SHORT).show();
+            	break;
             }
         }
     };

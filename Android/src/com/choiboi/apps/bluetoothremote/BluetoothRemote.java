@@ -43,7 +43,7 @@ public class BluetoothRemote extends Activity {
     // Key names received from the BluetoothCommandService Handler
     public static final String DEVICE_NAME = "device_name";
     public static final String TOAST = "toast";
-    public static final String DEVICE_CONNECTED = "DEVICE CONNECTED";
+    public static final String DEVICE_CONNECTED = "DEVICE_CONNECTED";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -230,6 +230,9 @@ public class BluetoothRemote extends Activity {
                 mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
                 Toast.makeText(getApplicationContext(), "Connected to " + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
                 break;
+            case MESSAGE_TOAST:
+            	Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST),Toast.LENGTH_SHORT).show();
+            	break;
             }
         }
     };
