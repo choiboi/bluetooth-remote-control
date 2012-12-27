@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.choiboi.apps.bluetoothremote.ActivitiesBridge;
 import com.choiboi.apps.bluetoothremote.BluetoothService;
@@ -86,16 +85,22 @@ public class PresentationMode extends Activity {
         
         // Ask user which presentation program they will be using
         selectProgramDialog();
-        
-        mBluetoothService.setPresModeHandler(mHandler);
     }
 
     @Override
 	protected void onStart() {
 		super.onStart();
+		mBluetoothService.setPresModeHandler(mHandler);
 		
 		String command = mLocalDeviceName + ":" + APP_STARTED;
 		mBluetoothService.write(command.getBytes());
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		
+		mBluetoothService.removePresModeHandler();
 	}
 
 	@Override

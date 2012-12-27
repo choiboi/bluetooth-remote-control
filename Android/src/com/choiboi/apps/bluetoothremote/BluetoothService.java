@@ -31,7 +31,6 @@ public class BluetoothService {
     private ConnectedThread mConnectedThread;
     private int mState;
     private String mLocalDeviceName;
-    private BluetoothService me;
 
     // UUID for this application
     private static final UUID _UUID = UUID.fromString("C46C11A9-3E42-4F64-AB1E-FC892E87B9DE");
@@ -53,11 +52,6 @@ public class BluetoothService {
         mState = STATE_NONE;
         mBtRemoteHandler = handler;
         mPresModeHandler = null;
-        me = this;
-    }
-    
-    public void setPresModeHandler(Handler handler) {
-        mPresModeHandler = handler;
     }
 
     public synchronized void start() {
@@ -119,6 +113,20 @@ public class BluetoothService {
         Log.e(TAG, "--- getState ---");
         
         return mState;
+    }
+    
+    /*
+     * Set the Handler for PresentationMode.
+     */
+    public void setPresModeHandler(Handler handler) {
+        mPresModeHandler = handler;
+    }
+    
+    /*
+     * Remove Handler for PresentationMode as the Activity has ended.
+     */
+    public void removePresModeHandler() {
+    	mPresModeHandler = null;
     }
     
     /*
@@ -350,8 +358,6 @@ public class BluetoothService {
         public void run() {
             Log.e(TAG, "+++ BEGIN mConnectedThread +++");
 
-            byte[] buffer = new byte[2048];
-
             // Keep listening to the InputStream while connected
             while (true) {
                 try {
@@ -362,7 +368,9 @@ public class BluetoothService {
                     Bitmap bmp = BitmapFactory.decodeStream(mmInStream);
                     
                     // Send the obtained image to PresentationMode Activity
-                    mPresModeHandler.obtainMessage(PresentationMode.RECEIVED_IMAGE, -1, -1, bmp).sendToTarget();
+					if (mPresModeHandler != null) {
+						mPresModeHandler.obtainMessage(PresentationMode.RECEIVED_IMAGE, -1, -1, bmp).sendToTarget();
+					}
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
                     connectionLost();

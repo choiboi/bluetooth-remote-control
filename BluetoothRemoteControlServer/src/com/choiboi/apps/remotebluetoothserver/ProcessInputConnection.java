@@ -166,8 +166,8 @@ public class ProcessInputConnection implements Runnable {
             }
         }
         
-        sendSlideScreenshot();
         System.out.println(inputCmd[0] + ": " + inputCmd[1]);
+        sendSlideScreenshot();
     }
     
     /*
