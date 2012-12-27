@@ -5,7 +5,6 @@ import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,9 +17,11 @@ public class ProcessInputConnection implements Runnable {
     // Member fields
     private StreamConnection connection;
     private OutputStream mOutputStream;
+    private InputStream mInputStream;
     private String mOS = "";
     
     // Command constants sent from the mobile device.
+    private static final String DEVICE_CONNECTED = "DEVICE_CONNECTED";
     private static final String EXIT_CMD = "EXIT";
     private static final String KEY_LEFT = "LEFT";
     private static final String KEY_DOWN = "DOWN";
@@ -30,14 +31,14 @@ public class ProcessInputConnection implements Runnable {
     private static final String EXIT_FULLSCREEN = "EXIT_FULLSCREEN";
     private static final String APP_STARTED = "APP_STARTED";
     
-    // Acknowledgement to the device
+    // Acknowledgment to the device
     private static final String ACKNOWLEDGE_SENDING_IMG = "SENDING_IMG";
     private static final String ACKNOWLEDGE_IMG_SENT = "IMG_SENT";
     
-    // Regex for parcing commands
+    // Regex for parsing commands
     private static final String COLON = ":";
     
-    // Operating Sytems
+    // Operating Systems
     private static final String WINDOWS = "window";
     private static final String MAC_OS = "mac";
     
@@ -54,14 +55,13 @@ public class ProcessInputConnection implements Runnable {
     @Override
     public void run() {
         try {
-            // Open up InputStream and receive data
-            InputStream inputStream = connection.openDataInputStream();
-            System.out.println("Waiting for commands.....");
-            
+            // Open up InputStream and OutputStream to send and receive data
+            mInputStream = connection.openDataInputStream();
             mOutputStream = connection.openDataOutputStream();
+            
             while (true) {
                 byte[] buffer = new byte[2048];
-                int bytes = inputStream.read(buffer);
+                int bytes = mInputStream.read(buffer);
                 String[] cmd = new String[]{"", ""};
                 
                 if (bytes != -1) {
@@ -91,27 +91,32 @@ public class ProcessInputConnection implements Runnable {
      * @param inputCmd command received from the connected device
      */
     private void processCommand(String[] inputCmd) {
-        switch (inputCmd[1]) {
-        case KEY_RIGHT:
-            processArrowCmd(inputCmd, KeyEvent.VK_RIGHT);
-            break;
-        case KEY_LEFT:
-            processArrowCmd(inputCmd, KeyEvent.VK_LEFT);
-            break;
-        case KEY_UP:
-            processArrowCmd(inputCmd, KeyEvent.VK_UP);
-            break;
-        case KEY_DOWN:
-            processArrowCmd(inputCmd, KeyEvent.VK_DOWN);
-            break;
-        case GO_FULLSCREEN:
-        case EXIT_FULLSCREEN:
-            handleFullScreenCmd(inputCmd);
-            break;
-        case APP_STARTED:
-        	sendSlideScreenshot();
-        	break;
-        }
+    	if (inputCmd[0].equals(DEVICE_CONNECTED)) {
+    		System.out.println("\nThis Device is Connected to: " + inputCmd[1]);
+    		System.out.println("Waiting for commands.....");
+    	} else {
+			switch (inputCmd[1]) {
+			case KEY_RIGHT:
+				processArrowCmd(inputCmd, KeyEvent.VK_RIGHT);
+				break;
+			case KEY_LEFT:
+				processArrowCmd(inputCmd, KeyEvent.VK_LEFT);
+				break;
+			case KEY_UP:
+				processArrowCmd(inputCmd, KeyEvent.VK_UP);
+				break;
+			case KEY_DOWN:
+				processArrowCmd(inputCmd, KeyEvent.VK_DOWN);
+				break;
+			case GO_FULLSCREEN:
+			case EXIT_FULLSCREEN:
+				handleFullScreenCmd(inputCmd);
+				break;
+			case APP_STARTED:
+				sendSlideScreenshot();
+				break;
+			}
+		}
     }
     
     /*
