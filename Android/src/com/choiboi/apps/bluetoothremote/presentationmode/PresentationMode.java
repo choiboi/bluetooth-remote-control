@@ -91,11 +91,11 @@ public class PresentationMode extends Activity {
         selectProgramDialog();
     }
 
-    @Override
+	@Override
 	protected void onStart() {
 		super.onStart();
 		mBluetoothService.setPresModeHandler(mHandler);
-		
+
 		String command = mLocalDeviceName + ":" + APP_STARTED;
 		mBluetoothService.write(command.getBytes());
 	}
@@ -103,7 +103,7 @@ public class PresentationMode extends Activity {
 	@Override
 	protected void onStop() {
 		super.onStop();
-		
+
 		mBluetoothService.removePresModeHandler();
 	}
 

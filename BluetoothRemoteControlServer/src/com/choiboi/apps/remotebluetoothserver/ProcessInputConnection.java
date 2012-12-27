@@ -91,10 +91,10 @@ public class ProcessInputConnection implements Runnable {
      * @param inputCmd command received from the connected device
      */
     private void processCommand(String[] inputCmd) {
-    	if (inputCmd[0].equals(DEVICE_CONNECTED)) {
-    		System.out.println("\nThis Device is Connected to: " + inputCmd[1]);
-    		System.out.println("Waiting for commands.....");
-    	} else {
+		if (inputCmd[0].equals(DEVICE_CONNECTED)) {
+			System.out.println("\nThis Device is Connected to: " + inputCmd[1]);
+			System.out.println("Waiting for commands.....");
+		} else {
 			switch (inputCmd[1]) {
 			case KEY_RIGHT:
 				processArrowCmd(inputCmd, KeyEvent.VK_RIGHT);
@@ -117,7 +117,7 @@ public class ProcessInputConnection implements Runnable {
 				break;
 			}
 		}
-    }
+	}
     
     /*
      * Key events for up, down, left, and right arrow.
@@ -269,32 +269,32 @@ public class ProcessInputConnection implements Runnable {
      * Send out a screenshot of the slide to the device.
      */
     private void sendSlideScreenshot() {
-        try {
-        	// Send acknowledgment that an image will be sent
-        	mOutputStream.write(ACKNOWLEDGE_SENDING_IMG.getBytes());
-        	
-        	// Wait until all the animation on the slides have been completed.
-        	Thread.sleep(800);
-        	
-        	// Take a screenshot of the primary screen
-            Robot r = new Robot();
-            Rectangle captureSize = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
-            BufferedImage bImg = r.createScreenCapture(captureSize);
-            
-            // Send image to device via Bluetooth
-            ImageIO.write(bImg, "png", mOutputStream);
-            mOutputStream.flush();
-            
-            // Send acknowledgment that transfer is done
-            mOutputStream.write(ACKNOWLEDGE_IMG_SENT.getBytes());
+		try {
+			// Send acknowledgment that an image will be sent
+			mOutputStream.write(ACKNOWLEDGE_SENDING_IMG.getBytes());
 
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
+			// Wait until all the animation on the slides have been completed.
+			Thread.sleep(800);
+
+			// Take a screenshot of the primary screen
+			Robot r = new Robot();
+			Rectangle captureSize = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
+			BufferedImage bImg = r.createScreenCapture(captureSize);
+
+			// Send image to device via Bluetooth
+			ImageIO.write(bImg, "png", mOutputStream);
+			mOutputStream.flush();
+
+			// Send acknowledgment that transfer is done
+			mOutputStream.write(ACKNOWLEDGE_IMG_SENT.getBytes());
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
     }
     
     /*

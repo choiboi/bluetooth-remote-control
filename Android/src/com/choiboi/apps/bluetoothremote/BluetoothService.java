@@ -371,23 +371,23 @@ public class BluetoothService {
             // Keep listening to the InputStream while connected
             while (true) {
                 try {
-                	bytes = mmInStream.read(buffer);
+					bytes = mmInStream.read(buffer);
 					String sendingCheck = new String(buffer, 0, bytes);
 					if (sendingCheck.equals(ACKNOWLEDGE_SENDING_IMG) && mPresModeHandler != null) {
 						mPresModeHandler.obtainMessage(PresentationMode.IMAGE_TRANSFER_START).sendToTarget();
 					}
-                	
-                    // Read Image from the InputStream and decode it into bitmap
-                    BitmapFactory.Options Bitmp_Options = new BitmapFactory.Options();
-                    Bitmp_Options.inJustDecodeBounds = true;
-                    mmInStream.mark(mmInStream.available());
-                    Bitmap bmp = BitmapFactory.decodeStream(mmInStream);
 
-                    // Send the obtained image to PresentationMode Activity
+					// Read Image from the InputStream and decode it into bitmap
+					BitmapFactory.Options Bitmp_Options = new BitmapFactory.Options();
+					Bitmp_Options.inJustDecodeBounds = true;
+					mmInStream.mark(mmInStream.available());
+					Bitmap bmp = BitmapFactory.decodeStream(mmInStream);
+
+					// Send the obtained image to PresentationMode Activity
 					if (mPresModeHandler != null) {
 						mPresModeHandler.obtainMessage(PresentationMode.RECEIVED_IMAGE, -1, -1, bmp).sendToTarget();
 					}
-					
+
 					bytes = mmInStream.read(buffer);
 					String receivedCheck = new String(buffer, 0, bytes);
 					if (receivedCheck.equals(ACKNOWLEDGE_IMG_SENT) && mPresModeHandler != null) {
