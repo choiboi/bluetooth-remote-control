@@ -9,10 +9,14 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+
+import com.choiboi.apps.bluetoothremote.presentationmode.PresentationMode;
 
 public class BluetoothService {
 
@@ -21,11 +25,13 @@ public class BluetoothService {
 
     // Member fields
     private final BluetoothAdapter mBluetoothAdapter;
-    private final Handler mHandler;
+    private final Handler mBtRemoteHandler;
+    private Handler mPresModeHandler;
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
     private int mState;
     private String mLocalDeviceName;
+    private BluetoothService me;
 
     // UUID for this application
     private static final UUID _UUID = UUID.fromString("C46C11A9-3E42-4F64-AB1E-FC892E87B9DE");
@@ -45,7 +51,13 @@ public class BluetoothService {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mLocalDeviceName = mBluetoothAdapter.getName();
         mState = STATE_NONE;
-        mHandler = handler;
+        mBtRemoteHandler = handler;
+        mPresModeHandler = null;
+        me = this;
+    }
+    
+    public void setPresModeHandler(Handler handler) {
+        mPresModeHandler = handler;
     }
 
     public synchronized void start() {
@@ -97,7 +109,7 @@ public class BluetoothService {
 
         mState = state;
         // Give the new state to the Handler so the UI Activity can update
-        mHandler.obtainMessage(BluetoothRemote.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
+        mBtRemoteHandler.obtainMessage(BluetoothRemote.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
     }
 
     /*
@@ -174,11 +186,11 @@ public class BluetoothService {
         mConnectedThread.start();
 
         // Send the name of the connected device back to the UI Activity
-        Message msg = mHandler.obtainMessage(BluetoothRemote.MESSAGE_DEVICE_NAME);
+        Message msg = mBtRemoteHandler.obtainMessage(BluetoothRemote.MESSAGE_DEVICE_NAME);
         Bundle bundle = new Bundle();
         bundle.putString(BluetoothRemote.DEVICE_NAME, device.getName());
         msg.setData(bundle);
-        mHandler.sendMessage(msg);
+        mBtRemoteHandler.sendMessage(msg);
 
         setState(STATE_CONNECTED);
     }
@@ -192,11 +204,11 @@ public class BluetoothService {
         setState(STATE_LISTEN);
 
         // Send a failure message back to the Activity
-        Message msg = mHandler.obtainMessage(BluetoothRemote.MESSAGE_TOAST);
+        Message msg = mBtRemoteHandler.obtainMessage(BluetoothRemote.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
         bundle.putString(BluetoothRemote.TOAST, "Unable to connect device");
         msg.setData(bundle);
-        mHandler.sendMessage(msg);
+        mBtRemoteHandler.sendMessage(msg);
     }
 
     /*
@@ -208,11 +220,11 @@ public class BluetoothService {
         setState(STATE_LISTEN);
 
         // Send a failure message back to the Activity
-        Message msg = mHandler.obtainMessage(BluetoothRemote.MESSAGE_TOAST);
+        Message msg = mBtRemoteHandler.obtainMessage(BluetoothRemote.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
         bundle.putString(BluetoothRemote.TOAST, "Device connection was lost");
         msg.setData(bundle);
-        mHandler.sendMessage(msg);
+        mBtRemoteHandler.sendMessage(msg);
 
     }
 
@@ -338,16 +350,19 @@ public class BluetoothService {
         public void run() {
             Log.e(TAG, "+++ BEGIN mConnectedThread +++");
 
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[2048];
 
             // Keep listening to the InputStream while connected
             while (true) {
                 try {
-                    // Read from the InputStream
-                    int bytes = mmInStream.read(buffer);
-
-                    // Send the obtained bytes to the UI Activity
-                    mHandler.obtainMessage(BluetoothRemote.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+                    // Read Image from the InputStream and decode it into bitmap
+                    BitmapFactory.Options Bitmp_Options = new BitmapFactory.Options();
+                    Bitmp_Options.inJustDecodeBounds = true;
+                    mmInStream.mark(mmInStream.available());
+                    Bitmap bmp = BitmapFactory.decodeStream(mmInStream);
+                    
+                    // Send the obtained image to PresentationMode Activity
+                    mPresModeHandler.obtainMessage(PresentationMode.RECEIVED_IMAGE, -1, -1, bmp).sendToTarget();
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
                     connectionLost();

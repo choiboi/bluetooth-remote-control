@@ -2,14 +2,19 @@ package com.choiboi.apps.bluetoothremote.presentationmode;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.choiboi.apps.bluetoothremote.ActivitiesBridge;
 import com.choiboi.apps.bluetoothremote.BluetoothService;
@@ -37,6 +42,9 @@ public class PresentationMode extends Activity {
     // Intent request codes
     private static final int REQUEST_PROGRAM_USED = 1;
     
+    // Message types sent from BluetoothService Handler
+    public static final int RECEIVED_IMAGE = 1;
+    
     // Constants that indicate command to computer
     private static final String LEFT = "LEFT";
     private static final String DOWN = "DOWN";
@@ -44,6 +52,7 @@ public class PresentationMode extends Activity {
     private static final String RIGHT = "RIGHT";
     private static final String GO_FULLSCREEN = "GO_FULLSCREEN";
     private static final String EXIT_FULLSCREEN = "EXIT_FULLSCREEN";
+    private static final String APP_STARTED = "APP_STARTED";
     
     // Presentation program constants also used as commands sent to computer
     private static final String BROWSER = "BROWSER";
@@ -77,9 +86,19 @@ public class PresentationMode extends Activity {
         
         // Ask user which presentation program they will be using
         selectProgramDialog();
+        
+        mBluetoothService.setPresModeHandler(mHandler);
     }
 
     @Override
+	protected void onStart() {
+		super.onStart();
+		
+		String command = mLocalDeviceName + ":" + APP_STARTED;
+		mBluetoothService.write(command.getBytes());
+	}
+
+	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.presentation_mode_menu, menu);
@@ -189,4 +208,21 @@ public class PresentationMode extends Activity {
             }
         }
     }
+    
+    private final Handler mHandler = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            
+            switch(msg.what) {
+            case RECEIVED_IMAGE:
+                // Get the image and set it to ImageView
+                Bitmap b = (Bitmap) msg.obj;
+                ImageView tv = (ImageView) findViewById(R.id.slide_image);
+                tv.setImageBitmap(b);
+                break;
+            }
+        }
+    };
 }
