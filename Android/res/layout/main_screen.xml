@@ -26,4 +26,16 @@
         android:text="@string/discoverable" 
         android:onClick="discoverableButtonClicked"/>
 
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/discoverable_button"
+        android:layout_alignRight="@+id/discoverable_button"
+        android:layout_alignTop="@+id/discoverable_button"
+        android:layout_marginTop="68dp"
+        android:text="@string/disconnect" 
+        android:drawableTop="@android:drawable/ic_delete"
+        android:onClick="disconnectButtonClicked"/>
+
 </RelativeLayout>

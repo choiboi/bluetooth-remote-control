@@ -39,6 +39,7 @@ public class BluetoothRemote extends Activity {
     public static final int MESSAGE_WRITE = 3;
     public static final int MESSAGE_DEVICE_NAME = 4;
     public static final int MESSAGE_TOAST = 5;
+    public static final int DEVICE_NOT_CONNECTED = 6;
 
     // Key names received from the BluetoothCommandService Handler
     public static final String DEVICE_NAME = "device_name";
@@ -117,7 +118,7 @@ public class BluetoothRemote extends Activity {
      * function and launch the DeviceListActivity to see devices and do scan.
      */
     public void connectButtonClicked(View v) {
-        Log.e(TAG, "--- connectButtonClicked ---");
+        Log.i(TAG, "--- connectButtonClicked ---");
         
         Intent serverIntent = new Intent(this, DeviceListActivity.class);
         startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
@@ -128,9 +129,15 @@ public class BluetoothRemote extends Activity {
      * function and will ensure that this device is discoverable by others.
      */
     public void discoverableButtonClicked(View v) {
-        Log.e(TAG, "--- discoverableButtonClicked ---");
+        Log.i(TAG, "--- discoverableButtonClicked ---");
         
         ensureDiscoverable();
+    }
+    
+    public void disconnectButtonClicked(View v) {
+    	Log.i(TAG, "--- disconnectButtonClicked ---");
+    	
+    	mBluetoothService.disconnect();
     }
 
     /*
@@ -233,7 +240,10 @@ public class BluetoothRemote extends Activity {
             case MESSAGE_TOAST:
             	Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST),Toast.LENGTH_SHORT).show();
             	break;
-            }
+			case DEVICE_NOT_CONNECTED:
+				Toast.makeText(getApplicationContext(), R.string.not_connected_msg, Toast.LENGTH_SHORT).show();
+				break;
+			}
         }
     };
 }

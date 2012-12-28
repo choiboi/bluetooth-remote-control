@@ -243,6 +243,23 @@ public class BluetoothService {
         	mPresModeHandler.obtainMessage(PresentationMode.CONNECTION_LOST).sendToTarget();
         }
     }
+    
+    public void disconnect() {
+    	Log.i(TAG, "--- disconnect ---");
+    	
+    	if (mState != STATE_CONNECTED) {
+    		mBtRemoteHandler.obtainMessage(BluetoothRemote.DEVICE_NOT_CONNECTED).sendToTarget();
+    		return;
+    	}
+    	
+    	ConnectedThread cThread;
+    	synchronized (this) {
+	    	cThread = mConnectedThread; 
+	    	cThread.disconnect();
+    	}
+    	
+    	
+    }
 
     /*
      * Write to the ConnectedThread in an unsynchronized manner.
@@ -252,7 +269,7 @@ public class BluetoothService {
      * @see ConnectedThread#write(byte[])
      */
     public void write(byte[] out) {
-        Log.e(TAG, "--- write byte[] ---");
+        Log.e(TAG, "--- write ---");
 
         // Create temporary object
         ConnectedThread r;
@@ -415,6 +432,32 @@ public class BluetoothService {
                 Log.e(TAG, "Exception during write", e);
             }
         }
+        
+        /*
+         * Disconnect the currently connected device.
+         */
+		public void disconnect() {
+			try {
+				// Close all input and output streams
+				if (mmOutStream != null) {
+					mmOutStream.close();
+				}
+
+				if (mmInStream != null) {
+					mmInStream.close();
+				}
+
+				// Close the socket
+				if (mmSocket != null) {
+					mmSocket.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				return;
+			}
+			
+			BluetoothService.this.start();
+		}
 
         public void cancel() {
             try {
