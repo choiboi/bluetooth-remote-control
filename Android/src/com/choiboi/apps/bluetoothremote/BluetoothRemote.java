@@ -239,15 +239,15 @@ public class BluetoothRemote extends Activity {
                 Toast.makeText(getApplicationContext(), "Connected to " + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
                 break;
             case MESSAGE_TOAST:
-            	Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST),Toast.LENGTH_SHORT).show();
-            	break;
-			case DEVICE_NOT_CONNECTED:
-				Toast.makeText(getApplicationContext(), R.string.not_connected_msg, Toast.LENGTH_SHORT).show();
-				break;
-			case DEVICE_DISCONNECT_SUCCESS:
-				Toast.makeText(getApplicationContext(), R.string.device_disconnect_success, Toast.LENGTH_SHORT).show();
-				break;
-			}
+                Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST), Toast.LENGTH_SHORT).show();
+                break;
+            case DEVICE_NOT_CONNECTED:
+                Toast.makeText(getApplicationContext(), R.string.not_connected_msg, Toast.LENGTH_SHORT).show();
+                break;
+            case DEVICE_DISCONNECT_SUCCESS:
+                Toast.makeText(getApplicationContext(), R.string.device_disconnect_success, Toast.LENGTH_SHORT).show();
+                break;
+            }
         }
     };
 }
