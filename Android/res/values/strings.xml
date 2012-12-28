@@ -15,6 +15,7 @@
     <string name="discoverable">Make Discoverable</string>
     <string name="disconnect">Disconnect</string>
     <string name="not_connected_msg">This Device is NOT Connected to Anything!!</string>
+    <string name="device_disconnect_success">Device Successfully Disconnected!!</string>
     
     <!-- DeviceListActivity -->
     <string name="title_paired_devices">Paired Devices</string>

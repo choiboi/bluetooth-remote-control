@@ -40,6 +40,7 @@ public class BluetoothRemote extends Activity {
     public static final int MESSAGE_DEVICE_NAME = 4;
     public static final int MESSAGE_TOAST = 5;
     public static final int DEVICE_NOT_CONNECTED = 6;
+    public static final int DEVICE_DISCONNECT_SUCCESS = 7;
 
     // Key names received from the BluetoothCommandService Handler
     public static final String DEVICE_NAME = "device_name";
@@ -242,6 +243,9 @@ public class BluetoothRemote extends Activity {
             	break;
 			case DEVICE_NOT_CONNECTED:
 				Toast.makeText(getApplicationContext(), R.string.not_connected_msg, Toast.LENGTH_SHORT).show();
+				break;
+			case DEVICE_DISCONNECT_SUCCESS:
+				Toast.makeText(getApplicationContext(), R.string.device_disconnect_success, Toast.LENGTH_SHORT).show();
 				break;
 			}
         }

@@ -247,18 +247,18 @@ public class BluetoothService {
     public void disconnect() {
     	Log.i(TAG, "--- disconnect ---");
     	
+    	// Tell UI Activity that this device is not connected to anything
     	if (mState != STATE_CONNECTED) {
     		mBtRemoteHandler.obtainMessage(BluetoothRemote.DEVICE_NOT_CONNECTED).sendToTarget();
     		return;
     	}
     	
+    	// Disconnect device
     	ConnectedThread cThread;
     	synchronized (this) {
 	    	cThread = mConnectedThread; 
-	    	cThread.disconnect();
     	}
-    	
-    	
+    	cThread.disconnect();
     }
 
     /*
@@ -360,6 +360,8 @@ public class BluetoothService {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
+        
+        private boolean mIsDisconnect;
 
         public ConnectedThread(BluetoothSocket socket) {
             Log.e(TAG, "+++ create ConnectedThread +++");
@@ -378,6 +380,9 @@ public class BluetoothService {
 
             mmInStream = tmpInStream;
             mmOutStream = tmpOutStream;
+            
+            // Initially set it to false as the user did not choose to disconnect
+            mIsDisconnect = false;
         }
 
         public void run() {
@@ -412,7 +417,10 @@ public class BluetoothService {
 					}
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
-                    connectionLost();
+                    // Invoke connectionLost() only if it lost connection with the server
+                    if (!mIsDisconnect) {
+                    	connectionLost();
+                    }
                     BluetoothService.this.start();
                     break;
                 }
@@ -438,6 +446,9 @@ public class BluetoothService {
          */
 		public void disconnect() {
 			try {
+				// Set it to true so that it won't invoke connectionLost()
+				mIsDisconnect = true;
+				
 				// Close all input and output streams
 				if (mmOutStream != null) {
 					mmOutStream.close();
@@ -451,6 +462,9 @@ public class BluetoothService {
 				if (mmSocket != null) {
 					mmSocket.close();
 				}
+				
+				// Tell the UI Activity that the device has been successfully disconnected
+				mBtRemoteHandler.obtainMessage(BluetoothRemote.DEVICE_DISCONNECT_SUCCESS).sendToTarget();
 			} catch (IOException e) {
 				e.printStackTrace();
 				return;

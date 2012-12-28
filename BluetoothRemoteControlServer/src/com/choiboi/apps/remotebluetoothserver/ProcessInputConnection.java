@@ -22,7 +22,6 @@ public class ProcessInputConnection implements Runnable {
     
     // Command constants sent from the mobile device.
     private static final String DEVICE_CONNECTED = "DEVICE_CONNECTED";
-    private static final String EXIT_CMD = "EXIT";
     private static final String KEY_LEFT = "LEFT";
     private static final String KEY_DOWN = "DOWN";
     private static final String KEY_UP = "UP";
@@ -30,6 +29,7 @@ public class ProcessInputConnection implements Runnable {
     private static final String GO_FULLSCREEN = "GO_FULLSCREEN";
     private static final String EXIT_FULLSCREEN = "EXIT_FULLSCREEN";
     private static final String APP_STARTED = "APP_STARTED";
+    private static final String EXIT_CMD = "EXIT";
     
     // Acknowledgment to the device
     private static final String ACKNOWLEDGE_SENDING_IMG = "SENDING_IMG";
