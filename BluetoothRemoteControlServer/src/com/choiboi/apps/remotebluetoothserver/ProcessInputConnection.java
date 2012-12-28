@@ -22,7 +22,6 @@ public class ProcessInputConnection implements Runnable {
     
     // Command constants sent from the mobile device.
     private static final String DEVICE_CONNECTED = "DEVICE_CONNECTED";
-    private static final String EXIT_CMD = "EXIT";
     private static final String KEY_LEFT = "LEFT";
     private static final String KEY_DOWN = "DOWN";
     private static final String KEY_UP = "UP";
@@ -30,6 +29,7 @@ public class ProcessInputConnection implements Runnable {
     private static final String GO_FULLSCREEN = "GO_FULLSCREEN";
     private static final String EXIT_FULLSCREEN = "EXIT_FULLSCREEN";
     private static final String APP_STARTED = "APP_STARTED";
+    private static final String EXIT_CMD = "EXIT";
     
     // Acknowledgment to the device
     private static final String ACKNOWLEDGE_SENDING_IMG = "SENDING_IMG";
@@ -91,33 +91,33 @@ public class ProcessInputConnection implements Runnable {
      * @param inputCmd command received from the connected device
      */
     private void processCommand(String[] inputCmd) {
-		if (inputCmd[0].equals(DEVICE_CONNECTED)) {
-			System.out.println("\nThis Device is Connected to: " + inputCmd[1]);
-			System.out.println("Waiting for commands.....");
-		} else {
-			switch (inputCmd[1]) {
-			case KEY_RIGHT:
-				processArrowCmd(inputCmd, KeyEvent.VK_RIGHT);
-				break;
-			case KEY_LEFT:
-				processArrowCmd(inputCmd, KeyEvent.VK_LEFT);
-				break;
-			case KEY_UP:
-				processArrowCmd(inputCmd, KeyEvent.VK_UP);
-				break;
-			case KEY_DOWN:
-				processArrowCmd(inputCmd, KeyEvent.VK_DOWN);
-				break;
-			case GO_FULLSCREEN:
-			case EXIT_FULLSCREEN:
-				handleFullScreenCmd(inputCmd);
-				break;
-			case APP_STARTED:
-				sendSlideScreenshot();
-				break;
-			}
-		}
-	}
+        if (inputCmd[0].equals(DEVICE_CONNECTED)) {
+            System.out.println("\nThis Device is Connected to: " + inputCmd[1]);
+            System.out.println("Waiting for commands.....");
+        } else {
+            switch (inputCmd[1]) {
+            case KEY_RIGHT:
+                processArrowCmd(inputCmd, KeyEvent.VK_RIGHT);
+                break;
+            case KEY_LEFT:
+                processArrowCmd(inputCmd, KeyEvent.VK_LEFT);
+                break;
+            case KEY_UP:
+                processArrowCmd(inputCmd, KeyEvent.VK_UP);
+                break;
+            case KEY_DOWN:
+                processArrowCmd(inputCmd, KeyEvent.VK_DOWN);
+                break;
+            case GO_FULLSCREEN:
+            case EXIT_FULLSCREEN:
+                handleFullScreenCmd(inputCmd);
+                break;
+            case APP_STARTED:
+                sendSlideScreenshot();
+                break;
+            }
+        }
+    }
     
     /*
      * Key events for up, down, left, and right arrow.
@@ -269,32 +269,31 @@ public class ProcessInputConnection implements Runnable {
      * Send out a screenshot of the slide to the device.
      */
     private void sendSlideScreenshot() {
-		try {
-			// Send acknowledgment that an image will be sent
-			mOutputStream.write(ACKNOWLEDGE_SENDING_IMG.getBytes());
+        try {
+            // Send acknowledgment that an image will be sent
+            mOutputStream.write(ACKNOWLEDGE_SENDING_IMG.getBytes());
 
-			// Wait until all the animation on the slides have been completed.
-			Thread.sleep(800);
+            // Wait until all the animation on the slides have been completed.
+            Thread.sleep(800);
 
-			// Take a screenshot of the primary screen
-			Robot r = new Robot();
-			Rectangle captureSize = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
-			BufferedImage bImg = r.createScreenCapture(captureSize);
+            // Take a screenshot of the primary screen
+            Robot r = new Robot();
+            Rectangle captureSize = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
+            BufferedImage bImg = r.createScreenCapture(captureSize);
 
-			// Send image to device via Bluetooth
-			ImageIO.write(bImg, "png", mOutputStream);
-			mOutputStream.flush();
+            // Send image to device via Bluetooth
+            ImageIO.write(bImg, "png", mOutputStream);
+            mOutputStream.flush();
 
-			// Send acknowledgment that transfer is done
-			mOutputStream.write(ACKNOWLEDGE_IMG_SENT.getBytes());
-
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return;
-		}
+            // Send acknowledgment that transfer is done
+            mOutputStream.write(ACKNOWLEDGE_IMG_SENT.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
     }
     
     /*
