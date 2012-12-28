@@ -444,34 +444,35 @@ public class BluetoothService {
         /*
          * Disconnect the currently connected device.
          */
-		public void disconnect() {
-			try {
-				// Set it to true so that it won't invoke connectionLost()
-				mIsDisconnect = true;
-				
-				// Close all input and output streams
-				if (mmOutStream != null) {
-					mmOutStream.close();
-				}
+        public void disconnect() {
+            try {
+                // Set it to true so that it won't invoke connectionLost()
+                mIsDisconnect = true;
 
-				if (mmInStream != null) {
-					mmInStream.close();
-				}
+                // Close all input and output streams
+                if (mmOutStream != null) {
+                    mmOutStream.close();
+                }
 
-				// Close the socket
-				if (mmSocket != null) {
-					mmSocket.close();
-				}
-				
-				// Tell the UI Activity that the device has been successfully disconnected
-				mBtRemoteHandler.obtainMessage(BluetoothRemote.DEVICE_DISCONNECT_SUCCESS).sendToTarget();
-			} catch (IOException e) {
-				e.printStackTrace();
-				return;
-			}
-			
-			BluetoothService.this.start();
-		}
+                if (mmInStream != null) {
+                    mmInStream.close();
+                }
+
+                // Close the socket
+                if (mmSocket != null) {
+                    mmSocket.close();
+                }
+
+                // Tell the UI Activity that the device has been successfully
+                // disconnected
+                mBtRemoteHandler.obtainMessage(BluetoothRemote.DEVICE_DISCONNECT_SUCCESS).sendToTarget();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+
+            BluetoothService.this.start();
+        }
 
         public void cancel() {
             try {
