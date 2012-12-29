@@ -246,15 +246,16 @@ public class BluetoothService {
     public void disconnect() {
     	Log.i(TAG, "--- disconnect ---");
     	
-    	// Tell UI Activity that this device is not connected to anything
-        if (mState != STATE_CONNECTED) {
-            mBtRemoteHandler.obtainMessage(BluetoothRemote.DEVICE_NOT_CONNECTED).sendToTarget();
-            return;
-        }
+    	
     	
     	// Disconnect device
     	ConnectedThread cThread;
     	synchronized (this) {
+            // Tell UI Activity that this device is not connected to anything
+            if (mState != STATE_CONNECTED) {
+                mBtRemoteHandler.obtainMessage(BluetoothRemote.DEVICE_NOT_CONNECTED).sendToTarget();
+                return;
+            }
 	    	cThread = mConnectedThread; 
     	}
     	cThread.disconnect();
@@ -385,8 +386,8 @@ public class BluetoothService {
         }
 
         public void run() {
-            Log.e(TAG, "+++ BEGIN mConnectedThread +++");
-            byte[] buffer = new byte[256];
+            Log.i(TAG, "+++ BEGIN mConnectedThread +++");
+            byte[] buffer = new byte[512];
             int bytes;
 
             // Keep listening to the InputStream while connected
@@ -462,8 +463,7 @@ public class BluetoothService {
                     mmSocket.close();
                 }
 
-                // Tell the UI Activity that the device has been successfully
-                // disconnected
+                // Tell the UI Activity that the device has been successfully disconnected
                 mBtRemoteHandler.obtainMessage(BluetoothRemote.DEVICE_DISCONNECT_SUCCESS).sendToTarget();
             } catch (IOException e) {
                 e.printStackTrace();

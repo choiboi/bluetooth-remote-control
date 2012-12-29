@@ -67,7 +67,7 @@ public class ProcessInputConnection implements Runnable {
                 if (bytes != -1) {
                     cmd = parseInputCommand(new String(buffer, 0, bytes));
                 }
-                
+                System.out.println("Command: " + new String(buffer, 0, bytes));
                 // Stop thread if application on device quits
                 if (bytes == -1 || cmd[1].equals(EXIT_CMD)) {
                     System.out.println("==============APPLICATION ENDED==============");
@@ -272,7 +272,8 @@ public class ProcessInputConnection implements Runnable {
         try {
             // Send acknowledgment that an image will be sent
             mOutputStream.write(ACKNOWLEDGE_SENDING_IMG.getBytes());
-
+            mOutputStream.flush();
+            
             // Wait until all the animation on the slides have been completed.
             Thread.sleep(800);
 
@@ -284,9 +285,11 @@ public class ProcessInputConnection implements Runnable {
             // Send image to device via Bluetooth
             ImageIO.write(bImg, "png", mOutputStream);
             mOutputStream.flush();
-
+            Thread.sleep(100);
+            
             // Send acknowledgment that transfer is done
             mOutputStream.write(ACKNOWLEDGE_IMG_SENT.getBytes());
+            mOutputStream.flush();
         } catch (IOException e) {
             e.printStackTrace();
             return;
