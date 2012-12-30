@@ -97,7 +97,7 @@ public class PresentationMode extends Activity {
 		mBluetoothService.setPresModeHandler(mHandler);
 
 		String command = mLocalDeviceName + ":" + APP_STARTED;
-		mBluetoothService.write(command.getBytes());
+		mBluetoothService.writeCommand(command.getBytes());
 	}
 
 	@Override
@@ -121,7 +121,7 @@ public class PresentationMode extends Activity {
         Log.i(TAG, "--- leftArrow ---");
 
         String command = mLocalDeviceName + ":" + LEFT;
-        mBluetoothService.write(command.getBytes());
+        mBluetoothService.writeCommand(command.getBytes());
     }
 
     /*
@@ -131,7 +131,7 @@ public class PresentationMode extends Activity {
         Log.i(TAG, "--- downArrow ---");
 
         String command = mLocalDeviceName + ":" + DOWN;
-        mBluetoothService.write(command.getBytes());
+        mBluetoothService.writeCommand(command.getBytes());
     }
 
     /*
@@ -141,7 +141,7 @@ public class PresentationMode extends Activity {
         Log.i(TAG, "--- upArrow ---");
 
         String command = mLocalDeviceName + ":" + UP;
-        mBluetoothService.write(command.getBytes());
+        mBluetoothService.writeCommand(command.getBytes());
     }
 
     /*
@@ -151,7 +151,7 @@ public class PresentationMode extends Activity {
         Log.i(TAG, "--- rightArrow ---");
 
         String command = mLocalDeviceName + ":" + RIGHT;
-        mBluetoothService.write(command.getBytes());
+        mBluetoothService.writeCommand(command.getBytes());
     }
     
     /*
@@ -161,7 +161,7 @@ public class PresentationMode extends Activity {
         Log.i(TAG, "--- goFullscreenPresentation ---");
         
         String command = mLocalDeviceName + ":" + GO_FULLSCREEN + ":" + mPresentationProgram;
-        mBluetoothService.write(command.getBytes());
+        mBluetoothService.writeCommand(command.getBytes());
     }
     
     /*
@@ -171,7 +171,7 @@ public class PresentationMode extends Activity {
         Log.i(TAG, "--- exitFullscreenPresentation ---");
         
         String command = mLocalDeviceName + ":" + EXIT_FULLSCREEN + ":" + mPresentationProgram;
-        mBluetoothService.write(command.getBytes());
+        mBluetoothService.writeCommand(command.getBytes());
     }
     
     /*

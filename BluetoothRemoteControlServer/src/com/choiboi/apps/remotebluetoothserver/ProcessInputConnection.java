@@ -31,9 +31,12 @@ public class ProcessInputConnection implements Runnable {
     private static final String APP_STARTED = "APP_STARTED";
     private static final String EXIT_CMD = "EXIT";
     
-    // Acknowledgment to the device
-    private static final String ACKNOWLEDGE_SENDING_IMG = "SENDING_IMG";
-    private static final String ACKNOWLEDGE_IMG_SENT = "IMG_SENT";
+ // Acknowledge from the server
+    private static final String ACKNOWLEDGE = "<ACK>";
+    private static final String ACKNOWLEDGE_CMD_SENDING = "<ACK-SENDING-CMD>";
+    private static final String ACKNOWLEDGE_SENDING_IMG = "<ACK-SENDING-IMG>";
+    private static final String ACKNOWLEDGE_IMG_RECEIVED = "<ACK-IMG-RECEIVED>";
+//    private static final String ACKNOWLEDGE_IMG_SENT = "IMG_SENT";
     
     // Regex for parsing commands
     private static final String COLON = ":";
@@ -58,23 +61,23 @@ public class ProcessInputConnection implements Runnable {
             // Open up InputStream and OutputStream to send and receive data
             mInputStream = connection.openDataInputStream();
             mOutputStream = connection.openDataOutputStream();
+            byte[] buffer = new byte[1024];
+            int bytes;
+            
+            // Read for connected device name
+            bytes = mInputStream.read(buffer);
+            String[] inputCmd = parseInputCommand(new String(buffer, 0, bytes));
+            if (inputCmd[0].equals(DEVICE_CONNECTED))           
+                System.out.println("\nThis Device is Connected to: " + inputCmd[1]);
+            
+            System.out.println("Waiting for commands.....");
             
             while (true) {
-                byte[] buffer = new byte[2048];
-                int bytes = mInputStream.read(buffer);
-                String[] cmd = new String[]{"", ""};
+                bytes = mInputStream.read(buffer);
                 
-                if (bytes != -1) {
-                    cmd = parseInputCommand(new String(buffer, 0, bytes));
+                if (ACKNOWLEDGE_CMD_SENDING.equals(new String(buffer, 0, bytes))) {
+                    receivingCommand();
                 }
-                System.out.println("Command: " + new String(buffer, 0, bytes));
-                // Stop thread if application on device quits
-                if (bytes == -1 || cmd[1].equals(EXIT_CMD)) {
-                    System.out.println("==============APPLICATION ENDED==============");
-                    break; 
-                }
-                       
-                processCommand(cmd);  
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -85,37 +88,84 @@ public class ProcessInputConnection implements Runnable {
     }
     
     /*
+     * The communication to the device when it is receiving a command
+     * from the user. It consist of receiving the command string and
+     * sending the device a screenshot of the screen.
+     */
+    private void receivingCommand() {
+        byte[] buffer = new byte[1024];
+        int bytes;
+        String[] inputCmd;
+        
+        try {
+            // Send acknowledge that it is about to receive a command
+            mOutputStream.write(ACKNOWLEDGE.getBytes());
+
+            // Receive command from device
+            bytes = mInputStream.read(buffer);
+            inputCmd = parseInputCommand(new String(buffer, 0, bytes));
+            processCommand(inputCmd);
+ 
+            // Send acknowledgment that image will be sent
+            mOutputStream.write(ACKNOWLEDGE_SENDING_IMG.getBytes());
+
+            // Receive acknowledgment
+            bytes = mInputStream.read(buffer);
+            if (!ACKNOWLEDGE.equals(new String(buffer, 0, bytes)))
+                return;
+
+            // Send image
+            Thread.sleep(500);
+            BufferedImage bImg = sendSlideScreenshot();
+            ImageIO.write(bImg, "png", mOutputStream);
+            mOutputStream.flush();
+
+            // Receive acknowledgment that image has been received
+            bytes = mInputStream.read(buffer);
+            if (!ACKNOWLEDGE_IMG_RECEIVED.equals(new String(buffer, 0, bytes)))
+                return;
+
+            // Send acknowledge
+            mOutputStream.write(ACKNOWLEDGE.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        } catch(Exception e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+    
+    /*
      * Generate the proper key event from the user input on the
      * mobile device.
      * 
      * @param inputCmd command received from the connected device
      */
     private void processCommand(String[] inputCmd) {
-        if (inputCmd[0].equals(DEVICE_CONNECTED)) {
-            System.out.println("\nThis Device is Connected to: " + inputCmd[1]);
-            System.out.println("Waiting for commands.....");
-        } else {
-            switch (inputCmd[1]) {
-            case KEY_RIGHT:
-                processArrowCmd(inputCmd, KeyEvent.VK_RIGHT);
-                break;
-            case KEY_LEFT:
-                processArrowCmd(inputCmd, KeyEvent.VK_LEFT);
-                break;
-            case KEY_UP:
-                processArrowCmd(inputCmd, KeyEvent.VK_UP);
-                break;
-            case KEY_DOWN:
-                processArrowCmd(inputCmd, KeyEvent.VK_DOWN);
-                break;
-            case GO_FULLSCREEN:
-            case EXIT_FULLSCREEN:
-                handleFullScreenCmd(inputCmd);
-                break;
-            case APP_STARTED:
-                sendSlideScreenshot();
-                break;
-            }
+        switch (inputCmd[1]) {
+        case KEY_RIGHT:
+            processArrowCmd(inputCmd, KeyEvent.VK_RIGHT);
+            break;
+        case KEY_LEFT:
+            processArrowCmd(inputCmd, KeyEvent.VK_LEFT);
+            break;
+        case KEY_UP:
+            processArrowCmd(inputCmd, KeyEvent.VK_UP);
+            break;
+        case KEY_DOWN:
+            processArrowCmd(inputCmd, KeyEvent.VK_DOWN);
+            break;
+        case GO_FULLSCREEN:
+        case EXIT_FULLSCREEN:
+            handleFullScreenCmd(inputCmd);
+            break;
+        case APP_STARTED:
+            sendSlideScreenshot();
+            break;
+        case EXIT_CMD:
+            System.out.println("==============APPLICATION ENDED==============");
+            break;
         }
     }
     
@@ -136,7 +186,6 @@ public class ProcessInputConnection implements Runnable {
             e.printStackTrace();
             return;
         }
-        sendSlideScreenshot();
     }
     
     /*
@@ -176,7 +225,7 @@ public class ProcessInputConnection implements Runnable {
         }
         
         System.out.println(inputCmd[0] + ": " + inputCmd[1]);
-        sendSlideScreenshot();
+//        sendSlideScreenshot();
     }
     
     /*
@@ -266,36 +315,16 @@ public class ProcessInputConnection implements Runnable {
     }
     
     /*
-     * Send out a screenshot of the slide to the device.
+     * Take a screenshot of the screen to be sent to the device.
      */
-    private void sendSlideScreenshot() {
+    private BufferedImage sendSlideScreenshot() {
         try {
-            // Send acknowledgment that an image will be sent
-            mOutputStream.write(ACKNOWLEDGE_SENDING_IMG.getBytes());
-            mOutputStream.flush();
-            
-            // Wait until all the animation on the slides have been completed.
-            Thread.sleep(800);
-
-            // Take a screenshot of the primary screen
             Robot r = new Robot();
             Rectangle captureSize = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
-            BufferedImage bImg = r.createScreenCapture(captureSize);
-
-            // Send image to device via Bluetooth
-            ImageIO.write(bImg, "png", mOutputStream);
-            mOutputStream.flush();
-            Thread.sleep(100);
-            
-            // Send acknowledgment that transfer is done
-            mOutputStream.write(ACKNOWLEDGE_IMG_SENT.getBytes());
-            mOutputStream.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
+            return r.createScreenCapture(captureSize);
         } catch (Exception e) {
             e.printStackTrace();
-            return;
+            return null;
         }
     }
     
