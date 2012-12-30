@@ -3,6 +3,7 @@ package com.choiboi.apps.bluetoothremote;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Set;
 import java.util.UUID;
 
 import android.bluetooth.BluetoothAdapter;
@@ -49,7 +50,6 @@ public class BluetoothService {
     private static final String ACKNOWLEDGE_CMD_SENDING = "<ACK-SENDING-CMD>";
     private static final String ACKNOWLEDGE_SENDING_IMG = "<ACK-SENDING-IMG>";
     private static final String ACKNOWLEDGE_IMG_RECEIVED = "<ACK-IMG-RECEIVED>";
-//    private static final String ACKNOWLEDGE_IMG_SENT = "<ACK-IMG-SENT>";
 
     public BluetoothService(Context context, Handler handler) {
         Log.e(TAG, "++ BluetoothService ++");
@@ -249,8 +249,8 @@ public class BluetoothService {
     public void disconnect() {
     	Log.i(TAG, "--- disconnect ---");
     	
-    	
-    	
+    	setState(STATE_LISTEN);
+
     	// Disconnect device
     	ConnectedThread cThread;
     	synchronized (this) {
@@ -504,6 +504,7 @@ public class BluetoothService {
 
                 // Tell the UI Activity that the device has been successfully disconnected
                 mBtRemoteHandler.obtainMessage(BluetoothRemote.DEVICE_DISCONNECT_SUCCESS).sendToTarget();
+                BluetoothService.this.start();
             } catch (IOException e) {
                 e.printStackTrace();
                 return;

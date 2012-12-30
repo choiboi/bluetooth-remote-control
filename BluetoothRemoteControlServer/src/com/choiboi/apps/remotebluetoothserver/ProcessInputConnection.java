@@ -162,7 +162,6 @@ public class ProcessInputConnection implements Runnable {
             handleFullScreenCmd(inputCmd);
             break;
         case APP_STARTED:
-            sendSlideScreenshot();
             break;
         case EXIT_CMD:
             System.out.println("==============APPLICATION ENDED==============");
