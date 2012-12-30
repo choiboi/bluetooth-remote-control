@@ -13,13 +13,13 @@ import javax.imageio.ImageIO;
 import javax.microedition.io.StreamConnection;
 
 public class ProcessInputConnection implements Runnable {
-    
+
     // Member fields
     private StreamConnection connection;
     private OutputStream mOutputStream;
     private InputStream mInputStream;
     private String mOS = "";
-    
+
     // Command constants sent from the mobile device.
     private static final String DEVICE_CONNECTED = "DEVICE_CONNECTED";
     private static final String KEY_LEFT = "LEFT";
@@ -30,26 +30,25 @@ public class ProcessInputConnection implements Runnable {
     private static final String EXIT_FULLSCREEN = "EXIT_FULLSCREEN";
     private static final String APP_STARTED = "APP_STARTED";
     private static final String EXIT_CMD = "EXIT";
-    
- // Acknowledge from the server
+
+    // Acknowledge from the server
     private static final String ACKNOWLEDGE = "<ACK>";
     private static final String ACKNOWLEDGE_CMD_SENDING = "<ACK-SENDING-CMD>";
     private static final String ACKNOWLEDGE_SENDING_IMG = "<ACK-SENDING-IMG>";
     private static final String ACKNOWLEDGE_IMG_RECEIVED = "<ACK-IMG-RECEIVED>";
-//    private static final String ACKNOWLEDGE_IMG_SENT = "IMG_SENT";
-    
+
     // Regex for parsing commands
     private static final String COLON = ":";
-    
+
     // Operating Systems
     private static final String WINDOWS = "window";
     private static final String MAC_OS = "mac";
-    
+
     // Presentation programs
     private static final String BROWSER = "BROWSER";
     private static final String MICROSOFT_POWERPOINT = "MICRO_PPT";
     private static final String ADOBE_READER = "ADOBE_PDF";
-    
+
     public ProcessInputConnection(StreamConnection conn) {
         connection = conn;
         mOS = System.getProperty("os.name").toLowerCase();
@@ -63,19 +62,22 @@ public class ProcessInputConnection implements Runnable {
             mOutputStream = connection.openDataOutputStream();
             byte[] buffer = new byte[1024];
             int bytes;
-            
+
             // Read for connected device name
             bytes = mInputStream.read(buffer);
             String[] inputCmd = parseInputCommand(new String(buffer, 0, bytes));
-            if (inputCmd[0].equals(DEVICE_CONNECTED))           
+            if (inputCmd[0].equals(DEVICE_CONNECTED))
                 System.out.println("\nThis Device is Connected to: " + inputCmd[1]);
-            
+
             System.out.println("Waiting for commands.....");
-            
+
             while (true) {
                 bytes = mInputStream.read(buffer);
                 
-                if (ACKNOWLEDGE_CMD_SENDING.equals(new String(buffer, 0, bytes))) {
+                if (bytes == -1) {
+                    System.out.println("==============APPLICATION ENDED==============");
+                    break;
+                } else if (ACKNOWLEDGE_CMD_SENDING.equals(new String(buffer, 0, bytes))) {
                     receivingCommand();
                 }
             }
@@ -86,17 +88,17 @@ public class ProcessInputConnection implements Runnable {
             e.printStackTrace();
         }
     }
-    
+
     /*
-     * The communication to the device when it is receiving a command
-     * from the user. It consist of receiving the command string and
-     * sending the device a screenshot of the screen.
+     * The communication to the device when it is receiving a command from the
+     * user. It consist of receiving the command string and sending the device a
+     * screenshot of the screen.
      */
     private void receivingCommand() {
         byte[] buffer = new byte[1024];
         int bytes;
         String[] inputCmd;
-        
+
         try {
             // Send acknowledge that it is about to receive a command
             mOutputStream.write(ACKNOWLEDGE.getBytes());
@@ -105,7 +107,7 @@ public class ProcessInputConnection implements Runnable {
             bytes = mInputStream.read(buffer);
             inputCmd = parseInputCommand(new String(buffer, 0, bytes));
             processCommand(inputCmd);
- 
+
             // Send acknowledgment that image will be sent
             mOutputStream.write(ACKNOWLEDGE_SENDING_IMG.getBytes());
 
@@ -115,7 +117,7 @@ public class ProcessInputConnection implements Runnable {
                 return;
 
             // Send image
-            Thread.sleep(500);
+            Thread.sleep(800);
             BufferedImage bImg = sendSlideScreenshot();
             ImageIO.write(bImg, "png", mOutputStream);
             mOutputStream.flush();
@@ -130,15 +132,14 @@ public class ProcessInputConnection implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
             return;
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return;
         }
     }
-    
+
     /*
-     * Generate the proper key event from the user input on the
-     * mobile device.
+     * Generate the proper key event from the user input on the mobile device.
      * 
      * @param inputCmd command received from the connected device
      */
@@ -168,11 +169,12 @@ public class ProcessInputConnection implements Runnable {
             break;
         }
     }
-    
+
     /*
      * Key events for up, down, left, and right arrow.
      * 
      * @param inputCmd command received from the connected device
+     * 
      * @param key either VK_UP or VK_DOWN or VK_LEFT or VK_RIGHT constants
      */
     private void processArrowCmd(String[] inputCmd, int key) {
@@ -180,14 +182,14 @@ public class ProcessInputConnection implements Runnable {
             Robot robot = new Robot();
             robot.keyPress(key);
             robot.keyRelease(key);
-            
+
             System.out.println(inputCmd[0] + ": " + inputCmd[1]);
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return;
         }
     }
-    
+
     /*
      * Whenever any fullscreen command has been given generate the proper
      * KeyEvent depending on the program used and the OS.
@@ -223,14 +225,12 @@ public class ProcessInputConnection implements Runnable {
                 break;
             }
         }
-        
+
         System.out.println(inputCmd[0] + ": " + inputCmd[1]);
-//        sendSlideScreenshot();
     }
-    
+
     /*
-     * Key events to make Microsoft Powerpoint presentations go
-     * fullscreen.
+     * Key events to make Microsoft Powerpoint presentations go fullscreen.
      */
     private void microPPTkeyEventGoFullscreen() {
         try {
@@ -242,10 +242,9 @@ public class ProcessInputConnection implements Runnable {
             return;
         }
     }
-    
+
     /*
-     * Key events to make Microsoft Powerpoint presentations exit
-     * fullscreen.
+     * Key events to make Microsoft Powerpoint presentations exit fullscreen.
      */
     private void microPPTKeyEventExitFullscreen() {
         try {
@@ -259,14 +258,13 @@ public class ProcessInputConnection implements Runnable {
     }
 
     /*
-     * Key events to make Adobe Reader presentations to go or 
-     * exit fullscreen.
+     * Key events to make Adobe Reader presentations to go or exit fullscreen.
      * 
      * @param key either VK_META or VK_CONTROL constants
      */
     private void adobePDFKeyEventFullscreen(int key) {
         try {
-            Robot robot = new Robot();  
+            Robot robot = new Robot();
             robot.keyPress(key);
             robot.keyPress(KeyEvent.VK_L);
             robot.keyRelease(KeyEvent.VK_L);
@@ -276,12 +274,11 @@ public class ProcessInputConnection implements Runnable {
             return;
         }
     }
-    
+
     /*
-     * Key events to make browser presentations go or exit
-     * fullscreen on Windows machines. Browsers include
-     * Google Chrome, Mozilla Firefox, and Microsoft Internet
-     * Explorer.
+     * Key events to make browser presentations go or exit fullscreen on Windows
+     * machines. Browsers include Google Chrome, Mozilla Firefox, and Microsoft
+     * Internet Explorer.
      */
     private void browserKeyEventWinFullscreen() {
         try {
@@ -293,11 +290,10 @@ public class ProcessInputConnection implements Runnable {
             return;
         }
     }
-    
+
     /*
-     * Key events to make browser presentations go or exit
-     * fullscreen on MacOS machines. Browsers include
-     * Google Chrome, and Mozilla Firefox.
+     * Key events to make browser presentations go or exit fullscreen on MacOS
+     * machines. Browsers include Google Chrome, and Mozilla Firefox.
      */
     private void browserKeyEventMacFullscreen() {
         try {
@@ -313,7 +309,7 @@ public class ProcessInputConnection implements Runnable {
             return;
         }
     }
-    
+
     /*
      * Take a screenshot of the screen to be sent to the device.
      */
@@ -327,10 +323,10 @@ public class ProcessInputConnection implements Runnable {
             return null;
         }
     }
-    
+
     /*
-     * Split the string between the device name and command
-     * received form that device.
+     * Split the string between the device name and command received form that
+     * device.
      * 
      * @param cmd input command received from the device
      */
