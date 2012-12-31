@@ -46,7 +46,6 @@ public class PresentationMode extends Activity {
     public static final int RECEIVED_IMAGE = 1;
     public static final int CONNECTION_LOST = 2;
     public static final int IMAGE_TRANSFER_DONE = 3;
-    public static final int IMAGE_TRANSFER_START = 4;
     
     // Constants that indicate command to computer
     private static final String LEFT = "LEFT";
@@ -239,9 +238,6 @@ public class PresentationMode extends Activity {
             	break;
             case IMAGE_TRANSFER_DONE:
             	Toast.makeText(getApplicationContext(), R.string.slide_updated, Toast.LENGTH_SHORT).show();
-            	break;
-            case IMAGE_TRANSFER_START:
-            	Toast.makeText(getApplicationContext(), R.string.updating_slide, Toast.LENGTH_SHORT).show();
             	break;
             }
         }

@@ -313,8 +313,7 @@ public class BluetoothService {
             mmDevice = device;
             BluetoothSocket tmpBluetoothSocket = null;
 
-            // Get a BluetoothSocket for a connection with the
-            // given BluetoothDevice
+            // Get a BluetoothSocket for a connection with the given BluetoothDevice
             try {
                 tmpBluetoothSocket = device.createRfcommSocketToServiceRecord(_UUID);
             } catch (IOException e) {
