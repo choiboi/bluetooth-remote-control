@@ -3,7 +3,6 @@ package com.choiboi.apps.bluetoothremote;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Set;
 import java.util.UUID;
 
 import android.bluetooth.BluetoothAdapter;
@@ -249,8 +248,6 @@ public class BluetoothService {
     public void disconnect() {
     	Log.i(TAG, "--- disconnect ---");
     	
-    	setState(STATE_LISTEN);
-
     	// Disconnect device
     	ConnectedThread cThread;
     	synchronized (this) {

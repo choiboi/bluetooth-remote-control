@@ -40,7 +40,7 @@ public class PresentationMode extends Activity {
     public static final String PROGRAM = "program";
     
     // Intent request codes
-    private static final int REQUEST_PROGRAM_USED = 1;
+    private static final int REQUEST_PROGRAM_USED = 1;    
     
     // Message types sent from BluetoothService Handler
     public static final int RECEIVED_IMAGE = 1;
@@ -159,9 +159,10 @@ public class PresentationMode extends Activity {
      */
     public void goFullscreenPresentation(View v) {
         Log.i(TAG, "--- goFullscreenPresentation ---");
-        
+
         String command = mLocalDeviceName + ":" + GO_FULLSCREEN + ":" + mPresentationProgram;
         mBluetoothService.writeCommand(command.getBytes());
+
     }
     
     /*
@@ -169,7 +170,7 @@ public class PresentationMode extends Activity {
      */
     public void exitFullscreenPresentation(View v) {
         Log.i(TAG, "--- exitFullscreenPresentation ---");
-        
+
         String command = mLocalDeviceName + ":" + EXIT_FULLSCREEN + ":" + mPresentationProgram;
         mBluetoothService.writeCommand(command.getBytes());
     }
@@ -190,7 +191,6 @@ public class PresentationMode extends Activity {
             selectProgramDialog();
             return true;
         }
-        
         return false;
     }
 
@@ -214,7 +214,9 @@ public class PresentationMode extends Activity {
                 mPresentationProgram = ADOBE_READER;
             } else if (progSelection.equals(getResources().getString(R.string.browser))) {
                 mPresentationProgram = BROWSER;
-            }
+            } 
+        } else {
+            selectProgramDialog();
         }
     }
     
