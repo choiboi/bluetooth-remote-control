@@ -144,28 +144,18 @@ public class ProcessInputConnection implements Runnable {
      * @param inputCmd command received from the connected device
      */
     private void processCommand(String[] inputCmd) {
-        switch (inputCmd[1]) {
-        case KEY_RIGHT:
+        if (inputCmd[1].equals(KEY_RIGHT)) {
             processArrowCmd(inputCmd, KeyEvent.VK_RIGHT);
-            break;
-        case KEY_LEFT:
+        } else if (inputCmd[1].equals(KEY_LEFT)) {
             processArrowCmd(inputCmd, KeyEvent.VK_LEFT);
-            break;
-        case KEY_UP:
+        } else if (inputCmd[1].equals(KEY_UP)) {
             processArrowCmd(inputCmd, KeyEvent.VK_UP);
-            break;
-        case KEY_DOWN:
+        } else if (inputCmd[1].equals(KEY_DOWN)) {
             processArrowCmd(inputCmd, KeyEvent.VK_DOWN);
-            break;
-        case GO_FULLSCREEN:
-        case EXIT_FULLSCREEN:
+        } else if (inputCmd[1].equals(GO_FULLSCREEN) || inputCmd[1].equals(EXIT_FULLSCREEN)) {
             handleFullScreenCmd(inputCmd);
-            break;
-        case APP_STARTED:
-            break;
-        case EXIT_CMD:
+        } else if (inputCmd[1].equals(EXIT_CMD)) {
             System.out.println("==============APPLICATION ENDED==============");
-            break;
         }
     }
 
@@ -197,31 +187,22 @@ public class ProcessInputConnection implements Runnable {
      */
     private void handleFullScreenCmd(String[] inputCmd) {
         if (inputCmd[2].equals(MICROSOFT_POWERPOINT)) {
-            switch (inputCmd[1]) {
-            case GO_FULLSCREEN:
+            if (inputCmd[1].equals(GO_FULLSCREEN)) {
                 microPPTkeyEventGoFullscreen();
-                break;
-            case EXIT_FULLSCREEN:
+            } else if (inputCmd[1].equals(EXIT_FULLSCREEN)) {
                 microPPTKeyEventExitFullscreen();
-                break;
             }
         } else if (mOS.startsWith(WINDOWS)) {
-            switch (inputCmd[2]) {
-            case ADOBE_READER:
+            if (inputCmd[2].equals(ADOBE_READER)) {
                 adobePDFKeyEventFullscreen(KeyEvent.VK_CONTROL);
-                break;
-            case BROWSER:
+            } else if (inputCmd[2].equals(BROWSER)) {
                 browserKeyEventWinFullscreen();
-                break;
             }
         } else if (mOS.startsWith(MAC_OS)) {
-            switch (inputCmd[2]) {
-            case ADOBE_READER:
+            if (inputCmd[2].equals(ADOBE_READER)) {
                 adobePDFKeyEventFullscreen(KeyEvent.VK_META);
-                break;
-            case BROWSER:
+            } else if (inputCmd[2].equals(BROWSER)) {
                 browserKeyEventMacFullscreen();
-                break;
             }
         }
 
