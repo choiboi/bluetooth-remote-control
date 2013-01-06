@@ -33,7 +33,6 @@ public class PresentationMode extends Activity {
     private String mLocalDeviceName;
     private String mPresentationProgram = "";
     private GestureDetector mGestureDetector;
-    View.OnTouchListener mGestureListener;
 
     // Layout
     private TextView mTitle;
@@ -123,6 +122,7 @@ public class PresentationMode extends Activity {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         Log.i(TAG, "++ onTouchEvent ++");
+        
         return mGestureDetector.onTouchEvent(event);
     }
 
@@ -141,9 +141,12 @@ public class PresentationMode extends Activity {
      */
     public void downArrow(View v) {
         Log.i(TAG, "--- downArrow ---");
-
-        String command = mLocalDeviceName + ":" + DOWN;
-        mBluetoothService.writeCommand(command.getBytes());
+        
+        // Going slide below is only supported on HTML presentations
+        if (mPresentationProgram.equals(BROWSER)) {
+            String command = mLocalDeviceName + ":" + DOWN;
+            mBluetoothService.writeCommand(command.getBytes());
+        }
     }
 
     /*
@@ -151,9 +154,12 @@ public class PresentationMode extends Activity {
      */
     public void upArrow(View v) {
         Log.i(TAG, "--- upArrow ---");
-
-        String command = mLocalDeviceName + ":" + UP;
-        mBluetoothService.writeCommand(command.getBytes());
+        
+        // Going slide below is only supported on HTML presentations
+        if (mPresentationProgram.equals(BROWSER)) {
+            String command = mLocalDeviceName + ":" + UP;
+            mBluetoothService.writeCommand(command.getBytes());
+        }
     }
 
     /*
