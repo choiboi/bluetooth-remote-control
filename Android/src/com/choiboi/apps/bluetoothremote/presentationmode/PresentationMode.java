@@ -40,13 +40,12 @@ public class PresentationMode extends Activity {
     public static final String PROGRAM = "program";
     
     // Intent request codes
-    private static final int REQUEST_PROGRAM_USED = 1;
+    private static final int REQUEST_PROGRAM_USED = 1;    
     
     // Message types sent from BluetoothService Handler
     public static final int RECEIVED_IMAGE = 1;
     public static final int CONNECTION_LOST = 2;
     public static final int IMAGE_TRANSFER_DONE = 3;
-    public static final int IMAGE_TRANSFER_START = 4;
     
     // Constants that indicate command to computer
     private static final String LEFT = "LEFT";
@@ -97,7 +96,7 @@ public class PresentationMode extends Activity {
 		mBluetoothService.setPresModeHandler(mHandler);
 
 		String command = mLocalDeviceName + ":" + APP_STARTED;
-		mBluetoothService.write(command.getBytes());
+		mBluetoothService.writeCommand(command.getBytes());
 	}
 
 	@Override
@@ -121,7 +120,7 @@ public class PresentationMode extends Activity {
         Log.i(TAG, "--- leftArrow ---");
 
         String command = mLocalDeviceName + ":" + LEFT;
-        mBluetoothService.write(command.getBytes());
+        mBluetoothService.writeCommand(command.getBytes());
     }
 
     /*
@@ -131,7 +130,7 @@ public class PresentationMode extends Activity {
         Log.i(TAG, "--- downArrow ---");
 
         String command = mLocalDeviceName + ":" + DOWN;
-        mBluetoothService.write(command.getBytes());
+        mBluetoothService.writeCommand(command.getBytes());
     }
 
     /*
@@ -141,7 +140,7 @@ public class PresentationMode extends Activity {
         Log.i(TAG, "--- upArrow ---");
 
         String command = mLocalDeviceName + ":" + UP;
-        mBluetoothService.write(command.getBytes());
+        mBluetoothService.writeCommand(command.getBytes());
     }
 
     /*
@@ -151,7 +150,7 @@ public class PresentationMode extends Activity {
         Log.i(TAG, "--- rightArrow ---");
 
         String command = mLocalDeviceName + ":" + RIGHT;
-        mBluetoothService.write(command.getBytes());
+        mBluetoothService.writeCommand(command.getBytes());
     }
     
     /*
@@ -159,9 +158,10 @@ public class PresentationMode extends Activity {
      */
     public void goFullscreenPresentation(View v) {
         Log.i(TAG, "--- goFullscreenPresentation ---");
-        
+
         String command = mLocalDeviceName + ":" + GO_FULLSCREEN + ":" + mPresentationProgram;
-        mBluetoothService.write(command.getBytes());
+        mBluetoothService.writeCommand(command.getBytes());
+
     }
     
     /*
@@ -169,9 +169,9 @@ public class PresentationMode extends Activity {
      */
     public void exitFullscreenPresentation(View v) {
         Log.i(TAG, "--- exitFullscreenPresentation ---");
-        
+
         String command = mLocalDeviceName + ":" + EXIT_FULLSCREEN + ":" + mPresentationProgram;
-        mBluetoothService.write(command.getBytes());
+        mBluetoothService.writeCommand(command.getBytes());
     }
     
     /*
@@ -190,7 +190,6 @@ public class PresentationMode extends Activity {
             selectProgramDialog();
             return true;
         }
-        
         return false;
     }
 
@@ -214,7 +213,9 @@ public class PresentationMode extends Activity {
                 mPresentationProgram = ADOBE_READER;
             } else if (progSelection.equals(getResources().getString(R.string.browser))) {
                 mPresentationProgram = BROWSER;
-            }
+            } 
+        } else {
+            selectProgramDialog();
         }
     }
     
@@ -237,9 +238,6 @@ public class PresentationMode extends Activity {
             	break;
             case IMAGE_TRANSFER_DONE:
             	Toast.makeText(getApplicationContext(), R.string.slide_updated, Toast.LENGTH_SHORT).show();
-            	break;
-            case IMAGE_TRANSFER_START:
-            	Toast.makeText(getApplicationContext(), R.string.updating_slide, Toast.LENGTH_SHORT).show();
             	break;
             }
         }
