@@ -7,9 +7,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
@@ -30,6 +32,7 @@ public class PresentationMode extends Activity {
     private String mConnectedDeviceName;
     private String mLocalDeviceName;
     private String mPresentationProgram = "";
+    private GestureDetector mGestureDetector;
 
     // Layout
     private TextView mTitle;
@@ -88,6 +91,9 @@ public class PresentationMode extends Activity {
         
         // Ask user which presentation program they will be using
         selectProgramDialog();
+       
+        // Setup gesture detection
+        mGestureDetector = new GestureDetector(getApplicationContext(), new SwipeGestureDetector(this));
     }
 
 	@Override
@@ -112,6 +118,13 @@ public class PresentationMode extends Activity {
         inflater.inflate(R.menu.presentation_mode_menu, menu);
         return true;
     }
+    
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        Log.i(TAG, "++ onTouchEvent ++");
+        
+        return mGestureDetector.onTouchEvent(event);
+    }
 
     /*
      * Invoked whenever the left button is pressed.
@@ -128,9 +141,12 @@ public class PresentationMode extends Activity {
      */
     public void downArrow(View v) {
         Log.i(TAG, "--- downArrow ---");
-
-        String command = mLocalDeviceName + ":" + DOWN;
-        mBluetoothService.writeCommand(command.getBytes());
+        
+        // Going slide below is only supported on HTML presentations
+        if (mPresentationProgram.equals(BROWSER)) {
+            String command = mLocalDeviceName + ":" + DOWN;
+            mBluetoothService.writeCommand(command.getBytes());
+        }
     }
 
     /*
@@ -138,9 +154,12 @@ public class PresentationMode extends Activity {
      */
     public void upArrow(View v) {
         Log.i(TAG, "--- upArrow ---");
-
-        String command = mLocalDeviceName + ":" + UP;
-        mBluetoothService.writeCommand(command.getBytes());
+        
+        // Going slide below is only supported on HTML presentations
+        if (mPresentationProgram.equals(BROWSER)) {
+            String command = mLocalDeviceName + ":" + UP;
+            mBluetoothService.writeCommand(command.getBytes());
+        }
     }
 
     /*
@@ -220,7 +239,6 @@ public class PresentationMode extends Activity {
     }
     
     private final Handler mHandler = new Handler() {
-
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -241,5 +259,5 @@ public class PresentationMode extends Activity {
             	break;
             }
         }
-    };
+    };    
 }
