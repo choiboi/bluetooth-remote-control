@@ -13,13 +13,13 @@ import javax.imageio.ImageIO;
 import javax.microedition.io.StreamConnection;
 
 public class ProcessInputConnection implements Runnable {
-    
+
     // Member fields
     private StreamConnection connection;
     private OutputStream mOutputStream;
     private InputStream mInputStream;
     private String mOS = "";
-    
+
     // Command constants sent from the mobile device.
     private static final String DEVICE_CONNECTED = "DEVICE_CONNECTED";
     private static final String KEY_LEFT = "LEFT";
@@ -30,23 +30,25 @@ public class ProcessInputConnection implements Runnable {
     private static final String EXIT_FULLSCREEN = "EXIT_FULLSCREEN";
     private static final String APP_STARTED = "APP_STARTED";
     private static final String EXIT_CMD = "EXIT";
-    
-    // Acknowledgment to the device
-    private static final String ACKNOWLEDGE_SENDING_IMG = "SENDING_IMG";
-    private static final String ACKNOWLEDGE_IMG_SENT = "IMG_SENT";
-    
+
+    // Acknowledge from the server
+    private static final String ACKNOWLEDGE = "<ACK>";
+    private static final String ACKNOWLEDGE_CMD_SENDING = "<ACK-SENDING-CMD>";
+    private static final String ACKNOWLEDGE_SENDING_IMG = "<ACK-SENDING-IMG>";
+    private static final String ACKNOWLEDGE_IMG_RECEIVED = "<ACK-IMG-RECEIVED>";
+
     // Regex for parsing commands
     private static final String COLON = ":";
-    
+
     // Operating Systems
     private static final String WINDOWS = "window";
     private static final String MAC_OS = "mac";
-    
+
     // Presentation programs
     private static final String BROWSER = "BROWSER";
     private static final String MICROSOFT_POWERPOINT = "MICRO_PPT";
     private static final String ADOBE_READER = "ADOBE_PDF";
-    
+
     public ProcessInputConnection(StreamConnection conn) {
         connection = conn;
         mOS = System.getProperty("os.name").toLowerCase();
@@ -58,23 +60,26 @@ public class ProcessInputConnection implements Runnable {
             // Open up InputStream and OutputStream to send and receive data
             mInputStream = connection.openDataInputStream();
             mOutputStream = connection.openDataOutputStream();
-            
+            byte[] buffer = new byte[1024];
+            int bytes;
+
+            // Read for connected device name
+            bytes = mInputStream.read(buffer);
+            String[] inputCmd = parseInputCommand(new String(buffer, 0, bytes));
+            if (inputCmd[0].equals(DEVICE_CONNECTED))
+                System.out.println("\nThis Device is Connected to: " + inputCmd[1]);
+
+            System.out.println("Waiting for commands.....");
+
             while (true) {
-                byte[] buffer = new byte[2048];
-                int bytes = mInputStream.read(buffer);
-                String[] cmd = new String[]{"", ""};
+                bytes = mInputStream.read(buffer);
                 
-                if (bytes != -1) {
-                    cmd = parseInputCommand(new String(buffer, 0, bytes));
-                }
-                
-                // Stop thread if application on device quits
-                if (bytes == -1 || cmd[1].equals(EXIT_CMD)) {
+                if (bytes == -1) {
                     System.out.println("==============APPLICATION ENDED==============");
-                    break; 
+                    break;
+                } else if (ACKNOWLEDGE_CMD_SENDING.equals(new String(buffer, 0, bytes))) {
+                    receivingCommand();
                 }
-                       
-                processCommand(cmd);  
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -83,46 +88,82 @@ public class ProcessInputConnection implements Runnable {
             e.printStackTrace();
         }
     }
-    
+
     /*
-     * Generate the proper key event from the user input on the
-     * mobile device.
+     * The communication to the device when it is receiving a command from the
+     * user. It consist of receiving the command string and sending the device a
+     * screenshot of the screen.
+     */
+    private void receivingCommand() {
+        byte[] buffer = new byte[1024];
+        int bytes;
+        String[] inputCmd;
+
+        try {
+            // Send acknowledge that it is about to receive a command
+            mOutputStream.write(ACKNOWLEDGE.getBytes());
+
+            // Receive command from device
+            bytes = mInputStream.read(buffer);
+            inputCmd = parseInputCommand(new String(buffer, 0, bytes));
+            processCommand(inputCmd);
+
+            // Send acknowledgment that image will be sent
+            mOutputStream.write(ACKNOWLEDGE_SENDING_IMG.getBytes());
+
+            // Receive acknowledgment
+            bytes = mInputStream.read(buffer);
+            if (!ACKNOWLEDGE.equals(new String(buffer, 0, bytes)))
+                return;
+
+            // Send image
+            Thread.sleep(800);
+            BufferedImage bImg = sendSlideScreenshot();
+            ImageIO.write(bImg, "png", mOutputStream);
+            mOutputStream.flush();
+
+            // Receive acknowledgment that image has been received
+            bytes = mInputStream.read(buffer);
+            if (!ACKNOWLEDGE_IMG_RECEIVED.equals(new String(buffer, 0, bytes)))
+                return;
+
+            // Send acknowledge
+            mOutputStream.write(ACKNOWLEDGE.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+
+    /*
+     * Generate the proper key event from the user input on the mobile device.
      * 
      * @param inputCmd command received from the connected device
      */
     private void processCommand(String[] inputCmd) {
-        if (inputCmd[0].equals(DEVICE_CONNECTED)) {
-            System.out.println("\nThis Device is Connected to: " + inputCmd[1]);
-            System.out.println("Waiting for commands.....");
-        } else {
-            switch (inputCmd[1]) {
-            case KEY_RIGHT:
-                processArrowCmd(inputCmd, KeyEvent.VK_RIGHT);
-                break;
-            case KEY_LEFT:
-                processArrowCmd(inputCmd, KeyEvent.VK_LEFT);
-                break;
-            case KEY_UP:
-                processArrowCmd(inputCmd, KeyEvent.VK_UP);
-                break;
-            case KEY_DOWN:
-                processArrowCmd(inputCmd, KeyEvent.VK_DOWN);
-                break;
-            case GO_FULLSCREEN:
-            case EXIT_FULLSCREEN:
-                handleFullScreenCmd(inputCmd);
-                break;
-            case APP_STARTED:
-                sendSlideScreenshot();
-                break;
-            }
+        if (inputCmd[1].equals(KEY_RIGHT)) {
+            processArrowCmd(inputCmd, KeyEvent.VK_RIGHT);
+        } else if (inputCmd[1].equals(KEY_LEFT)) {
+            processArrowCmd(inputCmd, KeyEvent.VK_LEFT);
+        } else if (inputCmd[1].equals(KEY_UP)) {
+            processArrowCmd(inputCmd, KeyEvent.VK_UP);
+        } else if (inputCmd[1].equals(KEY_DOWN)) {
+            processArrowCmd(inputCmd, KeyEvent.VK_DOWN);
+        } else if (inputCmd[1].equals(GO_FULLSCREEN) || inputCmd[1].equals(EXIT_FULLSCREEN)) {
+            handleFullScreenCmd(inputCmd);
+        } else if (inputCmd[1].equals(EXIT_CMD)) {
+            System.out.println("==============APPLICATION ENDED==============");
         }
     }
-    
+
     /*
      * Key events for up, down, left, and right arrow.
      * 
      * @param inputCmd command received from the connected device
+     * 
      * @param key either VK_UP or VK_DOWN or VK_LEFT or VK_RIGHT constants
      */
     private void processArrowCmd(String[] inputCmd, int key) {
@@ -130,15 +171,14 @@ public class ProcessInputConnection implements Runnable {
             Robot robot = new Robot();
             robot.keyPress(key);
             robot.keyRelease(key);
-            
+
             System.out.println(inputCmd[0] + ": " + inputCmd[1]);
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return;
         }
-        sendSlideScreenshot();
     }
-    
+
     /*
      * Whenever any fullscreen command has been given generate the proper
      * KeyEvent depending on the program used and the OS.
@@ -147,41 +187,30 @@ public class ProcessInputConnection implements Runnable {
      */
     private void handleFullScreenCmd(String[] inputCmd) {
         if (inputCmd[2].equals(MICROSOFT_POWERPOINT)) {
-            switch (inputCmd[1]) {
-            case GO_FULLSCREEN:
+            if (inputCmd[1].equals(GO_FULLSCREEN)) {
                 microPPTkeyEventGoFullscreen();
-                break;
-            case EXIT_FULLSCREEN:
+            } else if (inputCmd[1].equals(EXIT_FULLSCREEN)) {
                 microPPTKeyEventExitFullscreen();
-                break;
             }
         } else if (mOS.startsWith(WINDOWS)) {
-            switch (inputCmd[2]) {
-            case ADOBE_READER:
+            if (inputCmd[2].equals(ADOBE_READER)) {
                 adobePDFKeyEventFullscreen(KeyEvent.VK_CONTROL);
-                break;
-            case BROWSER:
+            } else if (inputCmd[2].equals(BROWSER)) {
                 browserKeyEventWinFullscreen();
-                break;
             }
         } else if (mOS.startsWith(MAC_OS)) {
-            switch (inputCmd[2]) {
-            case ADOBE_READER:
+            if (inputCmd[2].equals(ADOBE_READER)) {
                 adobePDFKeyEventFullscreen(KeyEvent.VK_META);
-                break;
-            case BROWSER:
+            } else if (inputCmd[2].equals(BROWSER)) {
                 browserKeyEventMacFullscreen();
-                break;
             }
         }
-        
+
         System.out.println(inputCmd[0] + ": " + inputCmd[1]);
-        sendSlideScreenshot();
     }
-    
+
     /*
-     * Key events to make Microsoft Powerpoint presentations go
-     * fullscreen.
+     * Key events to make Microsoft Powerpoint presentations go fullscreen.
      */
     private void microPPTkeyEventGoFullscreen() {
         try {
@@ -193,10 +222,9 @@ public class ProcessInputConnection implements Runnable {
             return;
         }
     }
-    
+
     /*
-     * Key events to make Microsoft Powerpoint presentations exit
-     * fullscreen.
+     * Key events to make Microsoft Powerpoint presentations exit fullscreen.
      */
     private void microPPTKeyEventExitFullscreen() {
         try {
@@ -210,14 +238,13 @@ public class ProcessInputConnection implements Runnable {
     }
 
     /*
-     * Key events to make Adobe Reader presentations to go or 
-     * exit fullscreen.
+     * Key events to make Adobe Reader presentations to go or exit fullscreen.
      * 
      * @param key either VK_META or VK_CONTROL constants
      */
     private void adobePDFKeyEventFullscreen(int key) {
         try {
-            Robot robot = new Robot();  
+            Robot robot = new Robot();
             robot.keyPress(key);
             robot.keyPress(KeyEvent.VK_L);
             robot.keyRelease(KeyEvent.VK_L);
@@ -227,12 +254,11 @@ public class ProcessInputConnection implements Runnable {
             return;
         }
     }
-    
+
     /*
-     * Key events to make browser presentations go or exit
-     * fullscreen on Windows machines. Browsers include
-     * Google Chrome, Mozilla Firefox, and Microsoft Internet
-     * Explorer.
+     * Key events to make browser presentations go or exit fullscreen on Windows
+     * machines. Browsers include Google Chrome, Mozilla Firefox, and Microsoft
+     * Internet Explorer.
      */
     private void browserKeyEventWinFullscreen() {
         try {
@@ -244,11 +270,10 @@ public class ProcessInputConnection implements Runnable {
             return;
         }
     }
-    
+
     /*
-     * Key events to make browser presentations go or exit
-     * fullscreen on MacOS machines. Browsers include
-     * Google Chrome, and Mozilla Firefox.
+     * Key events to make browser presentations go or exit fullscreen on MacOS
+     * machines. Browsers include Google Chrome, and Mozilla Firefox.
      */
     private void browserKeyEventMacFullscreen() {
         try {
@@ -264,41 +289,24 @@ public class ProcessInputConnection implements Runnable {
             return;
         }
     }
-    
+
     /*
-     * Send out a screenshot of the slide to the device.
+     * Take a screenshot of the screen to be sent to the device.
      */
-    private void sendSlideScreenshot() {
+    private BufferedImage sendSlideScreenshot() {
         try {
-            // Send acknowledgment that an image will be sent
-            mOutputStream.write(ACKNOWLEDGE_SENDING_IMG.getBytes());
-
-            // Wait until all the animation on the slides have been completed.
-            Thread.sleep(800);
-
-            // Take a screenshot of the primary screen
             Robot r = new Robot();
             Rectangle captureSize = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
-            BufferedImage bImg = r.createScreenCapture(captureSize);
-
-            // Send image to device via Bluetooth
-            ImageIO.write(bImg, "png", mOutputStream);
-            mOutputStream.flush();
-
-            // Send acknowledgment that transfer is done
-            mOutputStream.write(ACKNOWLEDGE_IMG_SENT.getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
+            return r.createScreenCapture(captureSize);
         } catch (Exception e) {
             e.printStackTrace();
-            return;
+            return null;
         }
     }
-    
+
     /*
-     * Split the string between the device name and command
-     * received form that device.
+     * Split the string between the device name and command received form that
+     * device.
      * 
      * @param cmd input command received from the device
      */
