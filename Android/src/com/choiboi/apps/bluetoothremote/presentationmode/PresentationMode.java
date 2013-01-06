@@ -7,9 +7,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
@@ -30,6 +32,8 @@ public class PresentationMode extends Activity {
     private String mConnectedDeviceName;
     private String mLocalDeviceName;
     private String mPresentationProgram = "";
+    private GestureDetector mGestureDetector;
+    View.OnTouchListener mGestureListener;
 
     // Layout
     private TextView mTitle;
@@ -88,6 +92,9 @@ public class PresentationMode extends Activity {
         
         // Ask user which presentation program they will be using
         selectProgramDialog();
+       
+        // Setup gesture detection
+        mGestureDetector = new GestureDetector(getApplicationContext(), new SwipeGestureDetector(this));
     }
 
 	@Override
@@ -111,6 +118,12 @@ public class PresentationMode extends Activity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.presentation_mode_menu, menu);
         return true;
+    }
+    
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        Log.i(TAG, "++ onTouchEvent ++");
+        return mGestureDetector.onTouchEvent(event);
     }
 
     /*
@@ -241,5 +254,5 @@ public class PresentationMode extends Activity {
             	break;
             }
         }
-    };
+    };    
 }
