@@ -8,6 +8,8 @@ Idea of using your phone as a presentation remote for your presentations. It wil
 ###Features
  * Simple buttons that will enable the user to switch between slides
  * Simple buttons to allow the user to full-screen in and out of the slides
+ * Can use swipe/touch gestures to control slides
+ * Screenshot of the presentation slide displayed on the device
 
 Tools
 -----
