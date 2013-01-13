@@ -37,6 +37,7 @@ public class ProcessInputConnection implements Runnable {
     private static final String ACKNOWLEDGE = "<ACK>";
     private static final String ACKNOWLEDGE_CMD_SENDING = "<ACK-CMD-SENDING>";
     private static final String ACKNOWLEDGE_CMD_RECEIVED = "<ACK-CMD-RECEIVED>";
+    private static final String ACKNOWLEDGE_IMG_CAN_RECEIVE = "<ACK-IMG-CAN-RECEIVE>";
     private static final String ACKNOWLEDGE_IMG_SENDING = "<ACK-IMG-SENDING>";
     private static final String ACKNOWLEDGE_IMG_RECEIVED = "<ACK-IMG-RECEIVED>";
 
@@ -83,6 +84,8 @@ public class ProcessInputConnection implements Runnable {
                 if (bytes == -1) {
                     System.out.println("==============APPLICATION ENDED==============");
                     break;
+                } if (ACKNOWLEDGE_IMG_CAN_RECEIVE.equals(new String(buffer, 0, bytes))) {
+                    sendScreenshot();
                 } else {
                     inputCmd = parseInputCommand(new String(buffer, 0, bytes));
                     if (inputCmd[0].equals(CMD)) {
@@ -90,15 +93,44 @@ public class ProcessInputConnection implements Runnable {
                         mOutputStream.write(ACKNOWLEDGE_CMD_RECEIVED.getBytes());
                     }
                 }
-//                else if (ACKNOWLEDGE_CMD_SENDING.equals(new String(buffer, 0, bytes))) {
-//                    receivingCommand();
-//                }
             }
         } catch (IOException e) {
             e.printStackTrace();
             return;
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    
+    private void sendScreenshot() {
+        byte[] buffer = new byte[512];
+        int bytes;
+        
+        try {
+            // Send acknowledgment that image will be sent
+            mOutputStream.write(ACKNOWLEDGE_IMG_SENDING.getBytes());
+            
+            // Receive acknowledgment
+            bytes = mInputStream.read(buffer);
+            if (!ACKNOWLEDGE.equals(new String(buffer, 0, bytes)))
+                return;
+            
+            // Send image
+            Thread.sleep(800);
+            BufferedImage bImg = sendSlideScreenshot();
+            ImageIO.write(bImg, "png", mOutputStream);
+            mOutputStream.flush();
+            
+            // Receive acknowledgment that image has been received
+            bytes = mInputStream.read(buffer);
+            if (!ACKNOWLEDGE_IMG_RECEIVED.equals(new String(buffer, 0, bytes)))
+                return;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
         }
     }
 
@@ -168,7 +200,7 @@ public class ProcessInputConnection implements Runnable {
         } else if (inputCmd[2].equals(GO_FULLSCREEN) || inputCmd[1].equals(EXIT_FULLSCREEN)) {
             handleFullScreenCmd(inputCmd);
         } else if(inputCmd[2].equals(APP_STARTED)) {
-            System.out.println(mConnectedDeviceName + " is in Presentation Mode!!");
+            System.out.println(mConnectedDeviceName + " is in Presentation Mode!!\n");
         } else if (inputCmd[2].equals(EXIT_CMD)) {
             System.out.println("==============APPLICATION ENDED==============");
         }

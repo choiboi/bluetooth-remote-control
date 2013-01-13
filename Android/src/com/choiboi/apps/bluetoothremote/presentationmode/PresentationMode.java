@@ -250,13 +250,14 @@ public class PresentationMode extends Activity {
                 Bitmap b = (Bitmap) msg.obj;
                 ImageView tv = (ImageView) findViewById(R.id.slide_image);
                 tv.setImageBitmap(b);
+                Toast.makeText(getApplicationContext(), R.string.slide_updated, Toast.LENGTH_SHORT).show();
                 break;
             case CONNECTION_LOST:
             	mTitle.setText(R.string.title_not_connected);
             	finish();
             	break;
             case IMAGE_TRANSFER_DONE:
-            	Toast.makeText(getApplicationContext(), R.string.slide_updated, Toast.LENGTH_SHORT).show();
+            	Toast.makeText(getApplicationContext(), "Updating Image...", Toast.LENGTH_SHORT).show();
             	break;
             }
         }

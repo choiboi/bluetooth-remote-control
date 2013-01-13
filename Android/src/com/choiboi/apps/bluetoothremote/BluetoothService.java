@@ -49,6 +49,7 @@ public class BluetoothService {
     private static final String ACKNOWLEDGE = "<ACK>";
     private static final String ACKNOWLEDGE_CMD_SENDING = "<ACK-CMD-SENDING>";
     private static final String ACKNOWLEDGE_CMD_RECEIVED = "<ACK-CMD-RECEIVED>";
+    private static final String ACKNOWLEDGE_IMG_CAN_RECEIVE = "<ACK-IMG-CAN-RECEIVE>";
     private static final String ACKNOWLEDGE_IMG_SENDING = "<ACK-IMG-SENDING>";
     private static final String ACKNOWLEDGE_IMG_RECEIVED = "<ACK-IMG-RECEIVED>";
 
@@ -425,14 +426,22 @@ public class BluetoothService {
             
             while (true) {
                 try {
+                    if (!mCmdQueue.isEmpty()) {
+                        sendCommand(null);
+                    }
+                    
                     bytes = mmInStream.read(buffer);
                     String receivedData = new String(buffer, 0, bytes);
                     
                     if (receivedData.equals(ACKNOWLEDGE_CMD_RECEIVED)) {
+                        mCmdQueue.remove(0);
                         if (!mCmdQueue.isEmpty()) {
                             sendCommand(null);
                         } else {
-                            // Send Image Request.
+                            if (mPresModeHandler != null) {
+                                mPresModeHandler.obtainMessage(PresentationMode.IMAGE_TRANSFER_DONE).sendToTarget();
+                            }
+                            receiveScreenshot();
                         }
                     }
                 } catch (IOException e) {
@@ -464,17 +473,62 @@ public class BluetoothService {
             }
         }
         
-        public void sendCommand(String cmd) {
+        public void sendCommand(String cmd)  {
+            Log.i(TAG, "--- sendCommand ---");
+            
             if (cmd != null) {
-                Log.e(TAG, "++ sendCommand added to list ++");
+                Log.i(TAG, "--- sendCommand added ---");
                 mCmdQueue.add(cmd);
             }
-            
             if (!mCmdQueue.isEmpty()) {
-                Log.e(TAG, "++ sendCommand sending.... ++");
+                Log.i(TAG, "--- sendCommand sending... ---");
                 String tempCmd = mCmdQueue.get(0);
                 write(tempCmd.getBytes());
-                mCmdQueue.remove(0);
+            }
+        }
+        
+        public void receiveScreenshot() {
+            Log.i(TAG, "--- receiveScreenshot ---");
+            
+            byte[] buffer = new byte[512];
+            int bytes;
+            
+            try {
+                // Notify server that image can be sent
+                mmOutStream.write(ACKNOWLEDGE_IMG_CAN_RECEIVE.getBytes());
+                
+                // Receive that image will be sent
+                bytes = mmInStream.read(buffer);
+                if (!ACKNOWLEDGE_IMG_SENDING.equals(new String(buffer, 0, bytes))) 
+                    return;
+                
+                // Send acknowledgment
+                mmOutStream.write(ACKNOWLEDGE.getBytes());
+                
+                // Receive image
+                // Read Image from the InputStream and decode it into bitmap
+                BitmapFactory.Options Bitmp_Options = new BitmapFactory.Options();
+                Bitmp_Options.inJustDecodeBounds = true;
+                mmInStream.mark(mmInStream.available());
+                Bitmap bmp = BitmapFactory.decodeStream(mmInStream);
+                
+                // Send the obtained image to PresentationMode Activity
+                if (mPresModeHandler != null)
+                    mPresModeHandler.obtainMessage(PresentationMode.RECEIVED_IMAGE, -1, -1, bmp).sendToTarget();
+                
+                // Send Acknowledge image received
+                mmOutStream.write(ACKNOWLEDGE_IMG_RECEIVED.getBytes());
+            } catch (IOException e) {
+                Log.e(TAG, "disconnected", e);
+                // Invoke connectionLost() only if it lost connection with the server
+                if (!mIsDisconnect) {
+                    connectionLost();
+                }
+                BluetoothService.this.start();
+                return;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
             }
         }
         
