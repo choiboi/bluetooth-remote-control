@@ -19,6 +19,7 @@ public class ProcessInputConnection implements Runnable {
     private OutputStream mOutputStream;
     private InputStream mInputStream;
     private String mOS = "";
+    private String mConnectedDeviceName = "";
 
     // Command constants sent from the mobile device.
     private static final String DEVICE_CONNECTED = "DEVICE_CONNECTED";
@@ -30,11 +31,13 @@ public class ProcessInputConnection implements Runnable {
     private static final String EXIT_FULLSCREEN = "EXIT_FULLSCREEN";
     private static final String APP_STARTED = "APP_STARTED";
     private static final String EXIT_CMD = "EXIT";
+    private static final String CMD = "CMD";
 
     // Acknowledge from the server
     private static final String ACKNOWLEDGE = "<ACK>";
-    private static final String ACKNOWLEDGE_CMD_SENDING = "<ACK-SENDING-CMD>";
-    private static final String ACKNOWLEDGE_SENDING_IMG = "<ACK-SENDING-IMG>";
+    private static final String ACKNOWLEDGE_CMD_SENDING = "<ACK-CMD-SENDING>";
+    private static final String ACKNOWLEDGE_CMD_RECEIVED = "<ACK-CMD-RECEIVED>";
+    private static final String ACKNOWLEDGE_IMG_SENDING = "<ACK-IMG-SENDING>";
     private static final String ACKNOWLEDGE_IMG_RECEIVED = "<ACK-IMG-RECEIVED>";
 
     // Regex for parsing commands
@@ -62,12 +65,15 @@ public class ProcessInputConnection implements Runnable {
             mOutputStream = connection.openDataOutputStream();
             byte[] buffer = new byte[1024];
             int bytes;
+            String[] inputCmd;
 
             // Read for connected device name
             bytes = mInputStream.read(buffer);
-            String[] inputCmd = parseInputCommand(new String(buffer, 0, bytes));
-            if (inputCmd[0].equals(DEVICE_CONNECTED))
+            inputCmd = parseInputCommand(new String(buffer, 0, bytes));
+            if (inputCmd[0].equals(DEVICE_CONNECTED)) {
+                mConnectedDeviceName = inputCmd[1];
                 System.out.println("\nThis Device is Connected to: " + inputCmd[1]);
+            }
 
             System.out.println("Waiting for commands.....");
 
@@ -77,9 +83,16 @@ public class ProcessInputConnection implements Runnable {
                 if (bytes == -1) {
                     System.out.println("==============APPLICATION ENDED==============");
                     break;
-                } else if (ACKNOWLEDGE_CMD_SENDING.equals(new String(buffer, 0, bytes))) {
-                    receivingCommand();
+                } else {
+                    inputCmd = parseInputCommand(new String(buffer, 0, bytes));
+                    if (inputCmd[0].equals(CMD)) {
+                        processCommand(inputCmd);
+                        mOutputStream.write(ACKNOWLEDGE_CMD_RECEIVED.getBytes());
+                    }
                 }
+//                else if (ACKNOWLEDGE_CMD_SENDING.equals(new String(buffer, 0, bytes))) {
+//                    receivingCommand();
+//                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -109,7 +122,7 @@ public class ProcessInputConnection implements Runnable {
             processCommand(inputCmd);
 
             // Send acknowledgment that image will be sent
-            mOutputStream.write(ACKNOWLEDGE_SENDING_IMG.getBytes());
+            mOutputStream.write(ACKNOWLEDGE_IMG_SENDING.getBytes());
 
             // Receive acknowledgment
             bytes = mInputStream.read(buffer);
@@ -144,17 +157,19 @@ public class ProcessInputConnection implements Runnable {
      * @param inputCmd command received from the connected device
      */
     private void processCommand(String[] inputCmd) {
-        if (inputCmd[1].equals(KEY_RIGHT)) {
+        if (inputCmd[2].equals(KEY_RIGHT)) {
             processArrowCmd(inputCmd, KeyEvent.VK_RIGHT);
-        } else if (inputCmd[1].equals(KEY_LEFT)) {
+        } else if (inputCmd[2].equals(KEY_LEFT)) {
             processArrowCmd(inputCmd, KeyEvent.VK_LEFT);
-        } else if (inputCmd[1].equals(KEY_UP)) {
+        } else if (inputCmd[2].equals(KEY_UP)) {
             processArrowCmd(inputCmd, KeyEvent.VK_UP);
-        } else if (inputCmd[1].equals(KEY_DOWN)) {
+        } else if (inputCmd[2].equals(KEY_DOWN)) {
             processArrowCmd(inputCmd, KeyEvent.VK_DOWN);
-        } else if (inputCmd[1].equals(GO_FULLSCREEN) || inputCmd[1].equals(EXIT_FULLSCREEN)) {
+        } else if (inputCmd[2].equals(GO_FULLSCREEN) || inputCmd[1].equals(EXIT_FULLSCREEN)) {
             handleFullScreenCmd(inputCmd);
-        } else if (inputCmd[1].equals(EXIT_CMD)) {
+        } else if(inputCmd[2].equals(APP_STARTED)) {
+            System.out.println(mConnectedDeviceName + " is in Presentation Mode!!");
+        } else if (inputCmd[2].equals(EXIT_CMD)) {
             System.out.println("==============APPLICATION ENDED==============");
         }
     }
@@ -172,7 +187,7 @@ public class ProcessInputConnection implements Runnable {
             robot.keyPress(key);
             robot.keyRelease(key);
 
-            System.out.println(inputCmd[0] + ": " + inputCmd[1]);
+            System.out.println(inputCmd[1] + ": " + inputCmd[2]);
         } catch (Exception e) {
             e.printStackTrace();
             return;
@@ -186,27 +201,27 @@ public class ProcessInputConnection implements Runnable {
      * @param inputCmd command received from the connected device
      */
     private void handleFullScreenCmd(String[] inputCmd) {
-        if (inputCmd[2].equals(MICROSOFT_POWERPOINT)) {
-            if (inputCmd[1].equals(GO_FULLSCREEN)) {
+        if (inputCmd[3].equals(MICROSOFT_POWERPOINT)) {
+            if (inputCmd[2].equals(GO_FULLSCREEN)) {
                 microPPTkeyEventGoFullscreen();
             } else if (inputCmd[1].equals(EXIT_FULLSCREEN)) {
                 microPPTKeyEventExitFullscreen();
             }
         } else if (mOS.startsWith(WINDOWS)) {
-            if (inputCmd[2].equals(ADOBE_READER)) {
+            if (inputCmd[3].equals(ADOBE_READER)) {
                 adobePDFKeyEventFullscreen(KeyEvent.VK_CONTROL);
-            } else if (inputCmd[2].equals(BROWSER)) {
+            } else if (inputCmd[3].equals(BROWSER)) {
                 browserKeyEventWinFullscreen();
             }
         } else if (mOS.startsWith(MAC_OS)) {
-            if (inputCmd[2].equals(ADOBE_READER)) {
+            if (inputCmd[3].equals(ADOBE_READER)) {
                 adobePDFKeyEventFullscreen(KeyEvent.VK_META);
-            } else if (inputCmd[2].equals(BROWSER)) {
+            } else if (inputCmd[3].equals(BROWSER)) {
                 browserKeyEventMacFullscreen();
             }
         }
 
-        System.out.println(inputCmd[0] + ": " + inputCmd[1]);
+        System.out.println(inputCmd[1] + ": " + inputCmd[2]);
     }
 
     /*

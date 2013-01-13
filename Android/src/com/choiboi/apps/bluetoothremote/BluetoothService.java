@@ -3,6 +3,7 @@ package com.choiboi.apps.bluetoothremote;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.UUID;
 
 import android.bluetooth.BluetoothAdapter;
@@ -46,8 +47,9 @@ public class BluetoothService {
     
     // Acknowledge from the server
     private static final String ACKNOWLEDGE = "<ACK>";
-    private static final String ACKNOWLEDGE_CMD_SENDING = "<ACK-SENDING-CMD>";
-    private static final String ACKNOWLEDGE_SENDING_IMG = "<ACK-SENDING-IMG>";
+    private static final String ACKNOWLEDGE_CMD_SENDING = "<ACK-CMD-SENDING>";
+    private static final String ACKNOWLEDGE_CMD_RECEIVED = "<ACK-CMD-RECEIVED>";
+    private static final String ACKNOWLEDGE_IMG_SENDING = "<ACK-IMG-SENDING>";
     private static final String ACKNOWLEDGE_IMG_RECEIVED = "<ACK-IMG-RECEIVED>";
 
     public BluetoothService(Context context, Handler handler) {
@@ -297,6 +299,21 @@ public class BluetoothService {
         
         connectedThd.writeCommand(out);
     }
+    
+    public void sendCommandMain(String inputCmd) {
+        Log.i(TAG, "--- sendCommandMain ---");
+
+        // Create temporary object
+        ConnectedThread connectedThd;
+        // Synchronize a copy of the ConnectedThread
+        synchronized (this) {
+            if (mState != STATE_CONNECTED)
+                return;
+            connectedThd = mConnectedThread;
+        }
+        
+        connectedThd.sendCommand(inputCmd);
+    }
 
     /*
      * This thread runs while attempting to make an outgoing connection with a
@@ -376,6 +393,7 @@ public class BluetoothService {
         private final OutputStream mmOutStream;
         
         private boolean mIsDisconnect;
+        private ArrayList<String> mCmdQueue = new ArrayList<String>();
 
         public ConnectedThread(BluetoothSocket socket) {
             Log.e(TAG, "+++ create ConnectedThread +++");
@@ -401,6 +419,35 @@ public class BluetoothService {
 
         public void run() {
             Log.i(TAG, "+++ BEGIN mConnectedThread +++");
+            
+            byte[] buffer = new byte[512];
+            int bytes;
+            
+            while (true) {
+                try {
+                    bytes = mmInStream.read(buffer);
+                    String receivedData = new String(buffer, 0, bytes);
+                    
+                    if (receivedData.equals(ACKNOWLEDGE_CMD_RECEIVED)) {
+                        if (!mCmdQueue.isEmpty()) {
+                            sendCommand(null);
+                        } else {
+                            // Send Image Request.
+                        }
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, "disconnected", e);
+                    // Invoke connectionLost() only if it lost connection with the server
+                    if (!mIsDisconnect) {
+                        connectionLost();
+                    }
+                    BluetoothService.this.start();
+                    return;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return;
+                }
+            }
         }
 
         /*
@@ -410,10 +457,24 @@ public class BluetoothService {
          */
         public void write(byte[] buffer) {
             try {
-                Log.e(TAG, "++ write wrote to outstream ++");
+                Log.i(TAG, "++ write wrote to outstream ++");
                 mmOutStream.write(buffer);
             } catch (IOException e) {
                 Log.e(TAG, "Exception during write", e);
+            }
+        }
+        
+        public void sendCommand(String cmd) {
+            if (cmd != null) {
+                Log.e(TAG, "++ sendCommand added to list ++");
+                mCmdQueue.add(cmd);
+            }
+            
+            if (!mCmdQueue.isEmpty()) {
+                Log.e(TAG, "++ sendCommand sending.... ++");
+                String tempCmd = mCmdQueue.get(0);
+                write(tempCmd.getBytes());
+                mCmdQueue.remove(0);
             }
         }
         
@@ -442,7 +503,7 @@ public class BluetoothService {
                 
                 // Receive sending image awknowledgment
                 bytes = mmInStream.read(buffer);
-                if (!ACKNOWLEDGE_SENDING_IMG.equals(new String(buffer, 0, bytes))) 
+                if (!ACKNOWLEDGE_IMG_SENDING.equals(new String(buffer, 0, bytes))) 
                     return;
                 
                 // Send Acknowledge of image being sent

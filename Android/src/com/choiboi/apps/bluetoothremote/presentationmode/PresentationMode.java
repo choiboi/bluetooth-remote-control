@@ -51,6 +51,7 @@ public class PresentationMode extends Activity {
     public static final int IMAGE_TRANSFER_DONE = 3;
     
     // Constants that indicate command to computer
+    private static final String CMD = "CMD";
     private static final String LEFT = "LEFT";
     private static final String DOWN = "DOWN";
     private static final String UP = "UP";
@@ -101,8 +102,8 @@ public class PresentationMode extends Activity {
 		super.onStart();
 		mBluetoothService.setPresModeHandler(mHandler);
 
-		String command = mLocalDeviceName + ":" + APP_STARTED;
-		mBluetoothService.writeCommand(command.getBytes());
+		String command = CMD + ":" + mLocalDeviceName + ":" + APP_STARTED;
+		mBluetoothService.sendCommandMain(command);
 	}
 
 	@Override
@@ -132,8 +133,9 @@ public class PresentationMode extends Activity {
     public void leftArrow(View v) {
         Log.i(TAG, "--- leftArrow ---");
 
-        String command = mLocalDeviceName + ":" + LEFT;
-        mBluetoothService.writeCommand(command.getBytes());
+        String command = CMD + ":" + mLocalDeviceName + ":" + LEFT;
+//        mBluetoothService.writeCommand(command.getBytes());
+        mBluetoothService.sendCommandMain(command);
     }
 
     /*
@@ -142,11 +144,9 @@ public class PresentationMode extends Activity {
     public void downArrow(View v) {
         Log.i(TAG, "--- downArrow ---");
         
-        // Going slide below is only supported on HTML presentations
-        if (mPresentationProgram.equals(BROWSER)) {
-            String command = mLocalDeviceName + ":" + DOWN;
-            mBluetoothService.writeCommand(command.getBytes());
-        }
+        String command = CMD + ":" + mLocalDeviceName + ":" + DOWN;
+//        mBluetoothService.writeCommand(command.getBytes());
+        mBluetoothService.sendCommandMain(command);
     }
 
     /*
@@ -154,12 +154,10 @@ public class PresentationMode extends Activity {
      */
     public void upArrow(View v) {
         Log.i(TAG, "--- upArrow ---");
-        
-        // Going slide below is only supported on HTML presentations
-        if (mPresentationProgram.equals(BROWSER)) {
-            String command = mLocalDeviceName + ":" + UP;
-            mBluetoothService.writeCommand(command.getBytes());
-        }
+
+        String command = CMD + ":" + mLocalDeviceName + ":" + UP;
+//        mBluetoothService.writeCommand(command.getBytes());
+        mBluetoothService.sendCommandMain(command);
     }
 
     /*
@@ -168,8 +166,9 @@ public class PresentationMode extends Activity {
     public void rightArrow(View v) {
         Log.i(TAG, "--- rightArrow ---");
 
-        String command = mLocalDeviceName + ":" + RIGHT;
-        mBluetoothService.writeCommand(command.getBytes());
+        String command = CMD + ":" + mLocalDeviceName + ":" + RIGHT;
+//        mBluetoothService.writeCommand(command.getBytes());
+        mBluetoothService.sendCommandMain(command);
     }
     
     /*
@@ -178,8 +177,9 @@ public class PresentationMode extends Activity {
     public void goFullscreenPresentation(View v) {
         Log.i(TAG, "--- goFullscreenPresentation ---");
 
-        String command = mLocalDeviceName + ":" + GO_FULLSCREEN + ":" + mPresentationProgram;
-        mBluetoothService.writeCommand(command.getBytes());
+        String command = CMD + ":" + mLocalDeviceName + ":" + GO_FULLSCREEN + ":" + mPresentationProgram;
+//        mBluetoothService.writeCommand(command.getBytes());
+        mBluetoothService.sendCommandMain(command);
 
     }
     
@@ -189,8 +189,9 @@ public class PresentationMode extends Activity {
     public void exitFullscreenPresentation(View v) {
         Log.i(TAG, "--- exitFullscreenPresentation ---");
 
-        String command = mLocalDeviceName + ":" + EXIT_FULLSCREEN + ":" + mPresentationProgram;
-        mBluetoothService.writeCommand(command.getBytes());
+        String command = CMD + ":" + mLocalDeviceName + ":" + EXIT_FULLSCREEN + ":" + mPresentationProgram;
+//        mBluetoothService.writeCommand(command.getBytes());
+        mBluetoothService.sendCommandMain(command);
     }
     
     /*
