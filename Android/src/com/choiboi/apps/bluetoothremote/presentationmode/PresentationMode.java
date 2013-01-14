@@ -48,7 +48,7 @@ public class PresentationMode extends Activity {
     // Message types sent from BluetoothService Handler
     public static final int RECEIVED_IMAGE = 1;
     public static final int CONNECTION_LOST = 2;
-    public static final int IMAGE_TRANSFER_DONE = 3;
+    public static final int IMAGE_TRANSFER_START = 3;
     
     // Constants that indicate command to computer
     private static final String CMD = "CMD";
@@ -103,7 +103,7 @@ public class PresentationMode extends Activity {
 		mBluetoothService.setPresModeHandler(mHandler);
 
 		String command = CMD + ":" + mLocalDeviceName + ":" + APP_STARTED;
-		mBluetoothService.sendCommandMain(command);
+		mBluetoothService.write(command.getBytes());
 	}
 
 	@Override
@@ -134,8 +134,7 @@ public class PresentationMode extends Activity {
         Log.i(TAG, "--- leftArrow ---");
 
         String command = CMD + ":" + mLocalDeviceName + ":" + LEFT;
-//        mBluetoothService.writeCommand(command.getBytes());
-        mBluetoothService.sendCommandMain(command);
+        mBluetoothService.write(command.getBytes());
     }
 
     /*
@@ -145,8 +144,7 @@ public class PresentationMode extends Activity {
         Log.i(TAG, "--- downArrow ---");
         
         String command = CMD + ":" + mLocalDeviceName + ":" + DOWN;
-//        mBluetoothService.writeCommand(command.getBytes());
-        mBluetoothService.sendCommandMain(command);
+        mBluetoothService.write(command.getBytes());
     }
 
     /*
@@ -156,8 +154,7 @@ public class PresentationMode extends Activity {
         Log.i(TAG, "--- upArrow ---");
 
         String command = CMD + ":" + mLocalDeviceName + ":" + UP;
-//        mBluetoothService.writeCommand(command.getBytes());
-        mBluetoothService.sendCommandMain(command);
+        mBluetoothService.write(command.getBytes());
     }
 
     /*
@@ -167,8 +164,7 @@ public class PresentationMode extends Activity {
         Log.i(TAG, "--- rightArrow ---");
 
         String command = CMD + ":" + mLocalDeviceName + ":" + RIGHT;
-//        mBluetoothService.writeCommand(command.getBytes());
-        mBluetoothService.sendCommandMain(command);
+        mBluetoothService.write(command.getBytes());
     }
     
     /*
@@ -178,9 +174,7 @@ public class PresentationMode extends Activity {
         Log.i(TAG, "--- goFullscreenPresentation ---");
 
         String command = CMD + ":" + mLocalDeviceName + ":" + GO_FULLSCREEN + ":" + mPresentationProgram;
-//        mBluetoothService.writeCommand(command.getBytes());
-        mBluetoothService.sendCommandMain(command);
-
+        mBluetoothService.write(command.getBytes());
     }
     
     /*
@@ -190,8 +184,7 @@ public class PresentationMode extends Activity {
         Log.i(TAG, "--- exitFullscreenPresentation ---");
 
         String command = CMD + ":" + mLocalDeviceName + ":" + EXIT_FULLSCREEN + ":" + mPresentationProgram;
-//        mBluetoothService.writeCommand(command.getBytes());
-        mBluetoothService.sendCommandMain(command);
+        mBluetoothService.write(command.getBytes());
     }
     
     /*
@@ -256,8 +249,8 @@ public class PresentationMode extends Activity {
             	mTitle.setText(R.string.title_not_connected);
             	finish();
             	break;
-            case IMAGE_TRANSFER_DONE:
-            	Toast.makeText(getApplicationContext(), "Updating Image...", Toast.LENGTH_SHORT).show();
+            case IMAGE_TRANSFER_START:
+            	Toast.makeText(getApplicationContext(), R.string.updating_slide, Toast.LENGTH_SHORT).show();
             	break;
             }
         }

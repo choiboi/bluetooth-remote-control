@@ -283,21 +283,6 @@ public class BluetoothService {
         // Perform the write unsynchronized
         r.write(out);
     }
-    
-    public void sendCommandMain(String inputCmd) {
-        Log.i(TAG, "--- sendCommandMain ---");
-
-        // Create temporary object
-        ConnectedThread connectedThd;
-        // Synchronize a copy of the ConnectedThread
-        synchronized (this) {
-            if (mState != STATE_CONNECTED)
-                return;
-            connectedThd = mConnectedThread;
-        }
-        
-        connectedThd.write(inputCmd.getBytes());
-    }
 
     /*
      * This thread runs while attempting to make an outgoing connection with a
@@ -413,7 +398,7 @@ public class BluetoothService {
                     
                     if (receivedData.equals(ACKNOWLEDGE_CMD_RECEIVED)) {
                         if (mPresModeHandler != null) {
-                            mPresModeHandler.obtainMessage(PresentationMode.IMAGE_TRANSFER_DONE).sendToTarget();
+                            mPresModeHandler.obtainMessage(PresentationMode.IMAGE_TRANSFER_START).sendToTarget();
                         }
                         receiveScreenshot();
                     }

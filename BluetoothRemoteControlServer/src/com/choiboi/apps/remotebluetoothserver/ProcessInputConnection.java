@@ -86,9 +86,8 @@ public class ProcessInputConnection implements Runnable {
                 } if (ACKNOWLEDGE_IMG_CAN_RECEIVE.equals(new String(buffer, 0, bytes))) {
                     sendScreenshot();
                 } else {
-                    
                     inputCmd = parseInputCommand(new String(buffer, 0, bytes));
-                    if (inputCmd[0].equals(CMD)) {System.out.println("===" + new String(buffer, 0, bytes) + "===");
+                    if (inputCmd[0].equals(CMD)) {
                         processCommand(inputCmd);
                         mOutputStream.write(ACKNOWLEDGE_CMD_RECEIVED.getBytes());
                     }
@@ -148,7 +147,7 @@ public class ProcessInputConnection implements Runnable {
             processArrowCmd(inputCmd, KeyEvent.VK_UP);
         } else if (inputCmd[2].equals(KEY_DOWN)) {
             processArrowCmd(inputCmd, KeyEvent.VK_DOWN);
-        } else if (inputCmd[2].equals(GO_FULLSCREEN) || inputCmd[1].equals(EXIT_FULLSCREEN)) {
+        } else if (inputCmd[2].equals(GO_FULLSCREEN) || inputCmd[2].equals(EXIT_FULLSCREEN)) {
             handleFullScreenCmd(inputCmd);
         } else if(inputCmd[2].equals(APP_STARTED)) {
             System.out.println(mConnectedDeviceName + " is in Presentation Mode!!\n");
