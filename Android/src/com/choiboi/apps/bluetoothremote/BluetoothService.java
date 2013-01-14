@@ -3,7 +3,6 @@ package com.choiboi.apps.bluetoothremote;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.UUID;
 
 import android.bluetooth.BluetoothAdapter;
@@ -47,7 +46,6 @@ public class BluetoothService {
     
     // Acknowledge from the server
     private static final String ACKNOWLEDGE = "<ACK>";
-    private static final String ACKNOWLEDGE_CMD_SENDING = "<ACK-CMD-SENDING>";
     private static final String ACKNOWLEDGE_CMD_RECEIVED = "<ACK-CMD-RECEIVED>";
     private static final String ACKNOWLEDGE_IMG_CAN_RECEIVE = "<ACK-IMG-CAN-RECEIVE>";
     private static final String ACKNOWLEDGE_IMG_SENDING = "<ACK-IMG-SENDING>";
@@ -286,21 +284,6 @@ public class BluetoothService {
         r.write(out);
     }
     
-    public void writeCommand(byte[] out) {
-        Log.i(TAG, "--- writeCommand ---");
-
-        // Create temporary object
-        ConnectedThread connectedThd;
-        // Synchronize a copy of the ConnectedThread
-        synchronized (this) {
-            if (mState != STATE_CONNECTED)
-                return;
-            connectedThd = mConnectedThread;
-        }
-        
-        connectedThd.writeCommand(out);
-    }
-    
     public void sendCommandMain(String inputCmd) {
         Log.i(TAG, "--- sendCommandMain ---");
 
@@ -313,7 +296,7 @@ public class BluetoothService {
             connectedThd = mConnectedThread;
         }
         
-        connectedThd.sendCommand(inputCmd);
+        connectedThd.write(inputCmd.getBytes());
     }
 
     /*
@@ -394,8 +377,7 @@ public class BluetoothService {
         private final OutputStream mmOutStream;
         
         private boolean mIsDisconnect;
-        private ArrayList<String> mCmdQueue = new ArrayList<String>();
-
+        
         public ConnectedThread(BluetoothSocket socket) {
             Log.e(TAG, "+++ create ConnectedThread +++");
 
@@ -425,24 +407,15 @@ public class BluetoothService {
             int bytes;
             
             while (true) {
-                try {
-                    if (!mCmdQueue.isEmpty()) {
-                        sendCommand(null);
-                    }
-                    
+                try {                    
                     bytes = mmInStream.read(buffer);
                     String receivedData = new String(buffer, 0, bytes);
                     
                     if (receivedData.equals(ACKNOWLEDGE_CMD_RECEIVED)) {
-                        mCmdQueue.remove(0);
-                        if (!mCmdQueue.isEmpty()) {
-                            sendCommand(null);
-                        } else {
-                            if (mPresModeHandler != null) {
-                                mPresModeHandler.obtainMessage(PresentationMode.IMAGE_TRANSFER_DONE).sendToTarget();
-                            }
-                            receiveScreenshot();
+                        if (mPresModeHandler != null) {
+                            mPresModeHandler.obtainMessage(PresentationMode.IMAGE_TRANSFER_DONE).sendToTarget();
                         }
+                        receiveScreenshot();
                     }
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
@@ -470,20 +443,6 @@ public class BluetoothService {
                 mmOutStream.write(buffer);
             } catch (IOException e) {
                 Log.e(TAG, "Exception during write", e);
-            }
-        }
-        
-        public void sendCommand(String cmd)  {
-            Log.i(TAG, "--- sendCommand ---");
-            
-            if (cmd != null) {
-                Log.i(TAG, "--- sendCommand added ---");
-                mCmdQueue.add(cmd);
-            }
-            if (!mCmdQueue.isEmpty()) {
-                Log.i(TAG, "--- sendCommand sending... ---");
-                String tempCmd = mCmdQueue.get(0);
-                write(tempCmd.getBytes());
             }
         }
         
@@ -528,68 +487,6 @@ public class BluetoothService {
                 return;
             } catch (Exception e) {
                 e.printStackTrace();
-                return;
-            }
-        }
-        
-        /*
-         * Communication the the server when it is sending a command.
-         * It consists of sending the command string and receiving an
-         * image of the screen.
-         */
-        public void writeCommand(byte[] out) {
-            Log.i(TAG, "++ writeCommand ++");
-            
-            byte[] buffer = new byte[512];
-            int bytes;
-            
-            try {
-                // Send out signal indicating that a command is being sent out
-                mmOutStream.write(ACKNOWLEDGE_CMD_SENDING.getBytes());
-                
-                // Receive acknowledgment from server
-                bytes = mmInStream.read(buffer);
-                if (!ACKNOWLEDGE.equals(new String(buffer, 0, bytes)))
-                    return;
-                
-                // Send Command
-                mmOutStream.write(out);
-                
-                // Receive sending image awknowledgment
-                bytes = mmInStream.read(buffer);
-                if (!ACKNOWLEDGE_IMG_SENDING.equals(new String(buffer, 0, bytes))) 
-                    return;
-                
-                // Send Acknowledge of image being sent
-                mmOutStream.write(ACKNOWLEDGE.getBytes());
-                
-                // Receive image
-                // Read Image from the InputStream and decode it into bitmap
-                BitmapFactory.Options Bitmp_Options = new BitmapFactory.Options();
-                Bitmp_Options.inJustDecodeBounds = true;
-                mmInStream.mark(mmInStream.available());
-                Bitmap bmp = BitmapFactory.decodeStream(mmInStream);
-
-                // Send the obtained image to PresentationMode Activity
-                if (mPresModeHandler != null)
-                    mPresModeHandler.obtainMessage(PresentationMode.RECEIVED_IMAGE, -1, -1, bmp).sendToTarget();
-                
-                // Send Acknowledge image received
-                mmOutStream.write(ACKNOWLEDGE_IMG_RECEIVED.getBytes());
-                
-                // Receive sending image awknowledgment
-                bytes = mmInStream.read(buffer);
-                if (!ACKNOWLEDGE.equals(new String(buffer, 0, bytes))) 
-                    return;
-                if (mPresModeHandler != null)
-                    mPresModeHandler.obtainMessage(PresentationMode.IMAGE_TRANSFER_DONE).sendToTarget();
-            } catch (IOException e) {
-                Log.e(TAG, "disconnected", e);
-                // Invoke connectionLost() only if it lost connection with the server
-                if (!mIsDisconnect) {
-                    connectionLost();
-                }
-                BluetoothService.this.start();
                 return;
             }
         }

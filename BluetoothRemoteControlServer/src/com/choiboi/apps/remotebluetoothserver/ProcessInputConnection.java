@@ -35,7 +35,6 @@ public class ProcessInputConnection implements Runnable {
 
     // Acknowledge from the server
     private static final String ACKNOWLEDGE = "<ACK>";
-    private static final String ACKNOWLEDGE_CMD_SENDING = "<ACK-CMD-SENDING>";
     private static final String ACKNOWLEDGE_CMD_RECEIVED = "<ACK-CMD-RECEIVED>";
     private static final String ACKNOWLEDGE_IMG_CAN_RECEIVE = "<ACK-IMG-CAN-RECEIVE>";
     private static final String ACKNOWLEDGE_IMG_SENDING = "<ACK-IMG-SENDING>";
@@ -87,8 +86,9 @@ public class ProcessInputConnection implements Runnable {
                 } if (ACKNOWLEDGE_IMG_CAN_RECEIVE.equals(new String(buffer, 0, bytes))) {
                     sendScreenshot();
                 } else {
+                    
                     inputCmd = parseInputCommand(new String(buffer, 0, bytes));
-                    if (inputCmd[0].equals(CMD)) {
+                    if (inputCmd[0].equals(CMD)) {System.out.println("===" + new String(buffer, 0, bytes) + "===");
                         processCommand(inputCmd);
                         mOutputStream.write(ACKNOWLEDGE_CMD_RECEIVED.getBytes());
                     }
@@ -125,55 +125,6 @@ public class ProcessInputConnection implements Runnable {
             bytes = mInputStream.read(buffer);
             if (!ACKNOWLEDGE_IMG_RECEIVED.equals(new String(buffer, 0, bytes)))
                 return;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
-    }
-
-    /*
-     * The communication to the device when it is receiving a command from the
-     * user. It consist of receiving the command string and sending the device a
-     * screenshot of the screen.
-     */
-    private void receivingCommand() {
-        byte[] buffer = new byte[1024];
-        int bytes;
-        String[] inputCmd;
-
-        try {
-            // Send acknowledge that it is about to receive a command
-            mOutputStream.write(ACKNOWLEDGE.getBytes());
-
-            // Receive command from device
-            bytes = mInputStream.read(buffer);
-            inputCmd = parseInputCommand(new String(buffer, 0, bytes));
-            processCommand(inputCmd);
-
-            // Send acknowledgment that image will be sent
-            mOutputStream.write(ACKNOWLEDGE_IMG_SENDING.getBytes());
-
-            // Receive acknowledgment
-            bytes = mInputStream.read(buffer);
-            if (!ACKNOWLEDGE.equals(new String(buffer, 0, bytes)))
-                return;
-
-            // Send image
-            Thread.sleep(800);
-            BufferedImage bImg = sendSlideScreenshot();
-            ImageIO.write(bImg, "png", mOutputStream);
-            mOutputStream.flush();
-
-            // Receive acknowledgment that image has been received
-            bytes = mInputStream.read(buffer);
-            if (!ACKNOWLEDGE_IMG_RECEIVED.equals(new String(buffer, 0, bytes)))
-                return;
-
-            // Send acknowledge
-            mOutputStream.write(ACKNOWLEDGE.getBytes());
         } catch (IOException e) {
             e.printStackTrace();
             return;
