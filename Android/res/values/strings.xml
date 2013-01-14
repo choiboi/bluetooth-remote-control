@@ -7,20 +7,20 @@
     
     <!-- Bluetooth Remote -->
     <string name="title_connected_to">CONNECTED TO: </string>
-    <string name="title_connecting">CONNECTING...</string>
+    <string name="title_connecting">CONNECTING&#8230;</string>
     <string name="title_not_connected">NOT CONNECTED</string>
     <string name="btn_find">Find Device</string>
     <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Bluetooth Remote Control</string>
     <string name="connect">Connect a Device</string>
     <string name="discoverable">Make Discoverable</string>
     <string name="disconnect">Disconnect</string>
-    <string name="not_connected_msg">This Device is NOT Connected to Anything!!</string>
-    <string name="device_disconnect_success">Device Successfully Disconnected!!</string>
+    <string name="not_connected_msg">This Device is NOT Connected to Anything&#33;&#33;</string>
+    <string name="device_disconnect_success">Device Successfully Disconnected&#33;&#33;</string>
     
     <!-- DeviceListActivity -->
     <string name="title_paired_devices">Paired Devices</string>
     <string name="title_other_devices">Other Available Devices</string>
-    <string name="scanning">Scanning for Devices...</string>
+    <string name="scanning">Scanning for Devices&#8230;</string>
     <string name="select_device">Select a Device to Connect</string>
     <string name="none_found">No Devices Found</string>
     <string name="none_paired">No Devices Have Been Paired</string>
@@ -41,8 +41,8 @@
     <string name="micro_ppt">Microsoft PowerPoint</string>
     <string name="adobe_pdf">Adobe Reader</string>
     <string name="browser">Browser - Chrome, IE, and Firefox</string>
-    <string name="slide_updated">Slide Updated!!</string>
-    <string name="updating_slide">Updating Slide....</string>
+    <string name="slide_updated">Slide Updated&#33;&#33;</string>
+    <string name="updating_slide">Updating Slide&#8230;</string>
     
     <!-- PresentationMode Menu -->
     <string name="change_program">Change Presentation Program</string>
