@@ -94,7 +94,7 @@ public class PresentationMode extends Activity {
         selectProgramDialog();
        
         // Setup gesture detection
-        mGestureDetector = new GestureDetector(getApplicationContext(), new SwipeGestureDetector(this));
+        mGestureDetector = new GestureDetector(getApplicationContext(), new SwipeGestureDetector(mBluetoothService, mLocalDeviceName));
     }
 
 	@Override
@@ -126,67 +126,40 @@ public class PresentationMode extends Activity {
         
         return mGestureDetector.onTouchEvent(event);
     }
-
+    
     /*
-     * Invoked whenever the left button is pressed.
+     * This function is invoked whenever anyone of the buttons on this Activity 
+     * has been pressed. It will determine which button was pressed, create the
+     * correct command format in string, and then send it off to be sent to
+     * the server.
      */
-    public void leftArrow(View v) {
-        Log.i(TAG, "--- leftArrow ---");
-
-        String command = CMD + ":" + mLocalDeviceName + ":" + LEFT;
-        mBluetoothService.write(command.getBytes());
-    }
-
-    /*
-     * Invoked whenever the down button is pressed.
-     */
-    public void downArrow(View v) {
-        Log.i(TAG, "--- downArrow ---");
+    public void controlButtonPressed(View v) {
+        String command = CMD + ":" + mLocalDeviceName + ":";
         
-        String command = CMD + ":" + mLocalDeviceName + ":" + DOWN;
+        switch (v.getId()) {
+        case R.id.left_arrow:
+            command += LEFT;
+            break;
+        case R.id.right_arrow:
+            command += RIGHT;
+            break;
+        case R.id.up_arrow:
+            command += UP;
+            break;
+        case R.id.down_arrow:
+            command += DOWN;
+            break;
+        case R.id.go_fullscreen:
+            command += GO_FULLSCREEN + ":" + mPresentationProgram;
+            break;
+        case R.id.exit_fullscreen:
+            command += EXIT_FULLSCREEN + ":" + mPresentationProgram;
+            break;
+        }
+        
         mBluetoothService.write(command.getBytes());
     }
 
-    /*
-     * Invoked whenever the up button is pressed.
-     */
-    public void upArrow(View v) {
-        Log.i(TAG, "--- upArrow ---");
-
-        String command = CMD + ":" + mLocalDeviceName + ":" + UP;
-        mBluetoothService.write(command.getBytes());
-    }
-
-    /*
-     * Invoked whenever the right button is pressed.
-     */
-    public void rightArrow(View v) {
-        Log.i(TAG, "--- rightArrow ---");
-
-        String command = CMD + ":" + mLocalDeviceName + ":" + RIGHT;
-        mBluetoothService.write(command.getBytes());
-    }
-    
-    /*
-     * Invoked whenever the go fullscreen button is pressed.
-     */
-    public void goFullscreenPresentation(View v) {
-        Log.i(TAG, "--- goFullscreenPresentation ---");
-
-        String command = CMD + ":" + mLocalDeviceName + ":" + GO_FULLSCREEN + ":" + mPresentationProgram;
-        mBluetoothService.write(command.getBytes());
-    }
-    
-    /*
-     * Invoked whenever the exit fullscreen button is pressed.
-     */
-    public void exitFullscreenPresentation(View v) {
-        Log.i(TAG, "--- exitFullscreenPresentation ---");
-
-        String command = CMD + ":" + mLocalDeviceName + ":" + EXIT_FULLSCREEN + ":" + mPresentationProgram;
-        mBluetoothService.write(command.getBytes());
-    }
-    
     /*
      * This will start an Activity which opens up a dialog asking the user to
      * select which presentation program they will be using.

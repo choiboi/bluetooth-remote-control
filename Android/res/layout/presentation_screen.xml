@@ -39,7 +39,7 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_weight="1"
-            android:onClick="leftArrow"
+            android:onClick="controlButtonPressed"
             android:text="@string/left_arrow" />
 
         <Button
@@ -47,7 +47,7 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_weight="1"
-            android:onClick="downArrow"
+            android:onClick="controlButtonPressed"
             android:text="@string/down_arrow" />
 
         <Button
@@ -55,7 +55,7 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_weight="1"
-            android:onClick="upArrow"
+            android:onClick="controlButtonPressed"
             android:text="@string/up_arrow" />
 
         <Button
@@ -63,7 +63,7 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_weight="1"
-            android:onClick="rightArrow"
+            android:onClick="controlButtonPressed"
             android:text="@string/right_arrow" />
     </LinearLayout>
 
@@ -79,7 +79,7 @@
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:onClick="goFullscreenPresentation"
+            android:onClick="controlButtonPressed"
             android:text="@string/go_fullscreen"/>
         
         <Button
@@ -87,7 +87,7 @@
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:onClick="exitFullscreenPresentation"
+            android:onClick="controlButtonPressed"
             android:text="@string/exit_fullscreen"/>
     </LinearLayout>
 
