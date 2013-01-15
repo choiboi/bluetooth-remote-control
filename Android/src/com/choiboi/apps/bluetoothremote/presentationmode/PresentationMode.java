@@ -41,16 +41,17 @@ public class PresentationMode extends Activity {
     public static final String BLUETOOTH_SERVICE = "BluetoothService";
     public static final String CONNECTED_DEVICE_NAME = "connected_device_name";
     public static final String PROGRAM = "program";
-    
+
     // Intent request codes
-    private static final int REQUEST_PROGRAM_USED = 1;    
-    
+    private static final int REQUEST_PROGRAM_USED = 1;
+
     // Message types sent from BluetoothService Handler
     public static final int RECEIVED_IMAGE = 1;
     public static final int CONNECTION_LOST = 2;
-    public static final int IMAGE_TRANSFER_DONE = 3;
-    
+    public static final int IMAGE_TRANSFER_START = 3;
+
     // Constants that indicate command to computer
+    private static final String CMD = "CMD";
     private static final String LEFT = "LEFT";
     private static final String DOWN = "DOWN";
     private static final String UP = "UP";
@@ -58,7 +59,7 @@ public class PresentationMode extends Activity {
     private static final String GO_FULLSCREEN = "GO_FULLSCREEN";
     private static final String EXIT_FULLSCREEN = "EXIT_FULLSCREEN";
     private static final String APP_STARTED = "APP_STARTED";
-    
+
     // Presentation program constants also used as commands sent to computer
     private static final String BROWSER = "BROWSER";
     private static final String MICROSOFT_POWERPOINT = "MICRO_PPT";
@@ -88,123 +89,101 @@ public class PresentationMode extends Activity {
 
         mBluetoothService = (BluetoothService) ActivitiesBridge.getObject();
         mLocalDeviceName = mBluetoothService.getLocalDeviceName();
-        
+
         // Ask user which presentation program they will be using
         selectProgramDialog();
-       
+
         // Setup gesture detection
-        mGestureDetector = new GestureDetector(getApplicationContext(), new SwipeGestureDetector(this));
+        mGestureDetector = new GestureDetector(getApplicationContext(),
+                new SwipeGestureDetector(mBluetoothService, mLocalDeviceName));
     }
 
-	@Override
-	protected void onStart() {
-		super.onStart();
-		mBluetoothService.setPresModeHandler(mHandler);
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.i(TAG, "++ onStart ++");
 
-		String command = mLocalDeviceName + ":" + APP_STARTED;
-		mBluetoothService.writeCommand(command.getBytes());
-	}
+        mBluetoothService.setPresModeHandler(mHandler);
 
-	@Override
-	protected void onStop() {
-		super.onStop();
+        String command = CMD + ":" + mLocalDeviceName + ":" + APP_STARTED;
+        mBluetoothService.write(command.getBytes());
+    }
 
-		mBluetoothService.removePresModeHandler();
-	}
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i(TAG, "++ onStop ++");
 
-	@Override
+        mBluetoothService.removePresModeHandler();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        Log.i(TAG, "++ onCreateOptionsMenu ++");
+
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.presentation_mode_menu, menu);
         return true;
     }
-    
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         Log.i(TAG, "++ onTouchEvent ++");
-        
+
         return mGestureDetector.onTouchEvent(event);
     }
 
     /*
-     * Invoked whenever the left button is pressed.
+     * This function is invoked whenever anyone of the buttons on this Activity
+     * has been pressed. It will determine which button was pressed, create the
+     * correct command format in string, and then send it off to be sent to the
+     * server.
      */
-    public void leftArrow(View v) {
-        Log.i(TAG, "--- leftArrow ---");
+    public void controlButtonPressed(View v) {
+        Log.i(TAG, "--- controlButtonPressed ---");
 
-        String command = mLocalDeviceName + ":" + LEFT;
-        mBluetoothService.writeCommand(command.getBytes());
-    }
+        String command = CMD + ":" + mLocalDeviceName + ":";
 
-    /*
-     * Invoked whenever the down button is pressed.
-     */
-    public void downArrow(View v) {
-        Log.i(TAG, "--- downArrow ---");
-        
-        // Going slide below is only supported on HTML presentations
-        if (mPresentationProgram.equals(BROWSER)) {
-            String command = mLocalDeviceName + ":" + DOWN;
-            mBluetoothService.writeCommand(command.getBytes());
+        switch (v.getId()) {
+        case R.id.left_arrow:
+            command += LEFT;
+            break;
+        case R.id.right_arrow:
+            command += RIGHT;
+            break;
+        case R.id.up_arrow:
+            command += UP;
+            break;
+        case R.id.down_arrow:
+            command += DOWN;
+            break;
+        case R.id.go_fullscreen:
+            command += GO_FULLSCREEN + ":" + mPresentationProgram;
+            break;
+        case R.id.exit_fullscreen:
+            command += EXIT_FULLSCREEN + ":" + mPresentationProgram;
+            break;
         }
+
+        mBluetoothService.write(command.getBytes());
     }
 
-    /*
-     * Invoked whenever the up button is pressed.
-     */
-    public void upArrow(View v) {
-        Log.i(TAG, "--- upArrow ---");
-        
-        // Going slide below is only supported on HTML presentations
-        if (mPresentationProgram.equals(BROWSER)) {
-            String command = mLocalDeviceName + ":" + UP;
-            mBluetoothService.writeCommand(command.getBytes());
-        }
-    }
-
-    /*
-     * Invoked whenever the right button is pressed.
-     */
-    public void rightArrow(View v) {
-        Log.i(TAG, "--- rightArrow ---");
-
-        String command = mLocalDeviceName + ":" + RIGHT;
-        mBluetoothService.writeCommand(command.getBytes());
-    }
-    
-    /*
-     * Invoked whenever the go fullscreen button is pressed.
-     */
-    public void goFullscreenPresentation(View v) {
-        Log.i(TAG, "--- goFullscreenPresentation ---");
-
-        String command = mLocalDeviceName + ":" + GO_FULLSCREEN + ":" + mPresentationProgram;
-        mBluetoothService.writeCommand(command.getBytes());
-
-    }
-    
-    /*
-     * Invoked whenever the exit fullscreen button is pressed.
-     */
-    public void exitFullscreenPresentation(View v) {
-        Log.i(TAG, "--- exitFullscreenPresentation ---");
-
-        String command = mLocalDeviceName + ":" + EXIT_FULLSCREEN + ":" + mPresentationProgram;
-        mBluetoothService.writeCommand(command.getBytes());
-    }
-    
     /*
      * This will start an Activity which opens up a dialog asking the user to
      * select which presentation program they will be using.
      */
     private void selectProgramDialog() {
+        Log.i(TAG, "--- selectProgramDialog ---");
+
         Intent serverIntent = new Intent(this, ProgramSelectActivity.class);
         startActivityForResult(serverIntent, REQUEST_PROGRAM_USED);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        Log.i(TAG, "++ onOptionsItemSelected ++");
+
+        switch (item.getItemId()) {
         case R.id.change_presentation_program:
             selectProgramDialog();
             return true;
@@ -218,7 +197,7 @@ public class PresentationMode extends Activity {
      * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
      */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.i(TAG, "--- onActivityResult ---");
+        Log.i(TAG, "++ onActivityResult ++");
 
         if (resultCode == Activity.RESULT_OK) {
             String progSelection = data.getExtras().getString(PROGRAM);
@@ -242,6 +221,7 @@ public class PresentationMode extends Activity {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            Log.i(TAG, "++ handleMessage ++");
             
             switch(msg.what) {
             case RECEIVED_IMAGE:
@@ -249,13 +229,14 @@ public class PresentationMode extends Activity {
                 Bitmap b = (Bitmap) msg.obj;
                 ImageView tv = (ImageView) findViewById(R.id.slide_image);
                 tv.setImageBitmap(b);
+                Toast.makeText(getApplicationContext(), R.string.slide_updated, Toast.LENGTH_SHORT).show();
                 break;
             case CONNECTION_LOST:
             	mTitle.setText(R.string.title_not_connected);
             	finish();
             	break;
-            case IMAGE_TRANSFER_DONE:
-            	Toast.makeText(getApplicationContext(), R.string.slide_updated, Toast.LENGTH_SHORT).show();
+            case IMAGE_TRANSFER_START:
+            	Toast.makeText(getApplicationContext(), R.string.updating_slide, Toast.LENGTH_SHORT).show();
             	break;
             }
         }

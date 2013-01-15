@@ -4,35 +4,53 @@ import android.util.Log;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
 
+import com.choiboi.apps.bluetoothremote.BluetoothService;
+
 public class SwipeGestureDetector implements OnGestureListener {
     
     // Debugging
-    private static final String TAG = "GestureDetector";
+    private static final String TAG = "SwipeGestureDetector";
     
     // Member fields
-    private PresentationMode mPresMode;
+    private final BluetoothService mBtService;
+    private String mLocalDeviceName;
     
+    // Constant for swipe gesture
     private static final int SWIPE_MIN_DISTANCE = 120;
     private static final int SWIPE_MAX_OFF_PATH = 250;
     
-    public SwipeGestureDetector(PresentationMode presMode) {
-        Log.i(TAG, "++ CustomGestureDetector ++");
+    // Constants that indicate command to computer
+    private static final String CMD = "CMD";
+    private static final String LEFT = "LEFT";
+    private static final String DOWN = "DOWN";
+    private static final String UP = "UP";
+    private static final String RIGHT = "RIGHT";
+    
+    public SwipeGestureDetector(BluetoothService btService, String deviceName) {
+        Log.i(TAG, "++ SwipeGestureDetector ++");
         
-        mPresMode = presMode;
+        mBtService = btService;
+        mLocalDeviceName = deviceName;
     }
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         Log.i(TAG, "++ onFling ++");
+        
+        String command = CMD + ":" + mLocalDeviceName + ":";
 
         if (rightLeftSwipe(e1, e2)) {
-            mPresMode.rightArrow(null);
+            command += RIGHT;
+            mBtService.write(command.getBytes());
         } else if (leftRightSwipe(e1, e2)) {
-            mPresMode.leftArrow(null);
+            command += LEFT;
+            mBtService.write(command.getBytes());
         } else if (upDownSwipe(e1, e2)) {
-            mPresMode.upArrow(null);
+            command += UP;
+            mBtService.write(command.getBytes());
         } else if (downUpSwipe(e1, e2)) {
-            mPresMode.downArrow(null);
+            command += DOWN;
+            mBtService.write(command.getBytes());
         }
 
         return false;
@@ -63,8 +81,9 @@ public class SwipeGestureDetector implements OnGestureListener {
     @Override
     public boolean onSingleTapUp(MotionEvent arg0) {
         Log.i(TAG, "++ onSingleTapUp ++");
-
-        mPresMode.rightArrow(null);
+        
+        String command = CMD + ":" + mLocalDeviceName + ":" + RIGHT;
+        mBtService.write(command.getBytes());
 
         return false;
     }

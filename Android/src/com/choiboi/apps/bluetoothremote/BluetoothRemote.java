@@ -50,7 +50,7 @@ public class BluetoothRemote extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e(TAG, "++ onCreate ++");
+        Log.i(TAG, "++ onCreate ++");
 
         // Setup the layout
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
@@ -76,7 +76,7 @@ public class BluetoothRemote extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-        Log.e(TAG, "++ onStart ++");
+        Log.i(TAG, "++ onStart ++");
 
         mLocalDeviceName = mBluetoothAdapter.getName();
 
@@ -96,7 +96,7 @@ public class BluetoothRemote extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.e(TAG, "++ onResume ++");
+        Log.i(TAG, "++ onResume ++");
 
         if (mBluetoothService != null) {
             if (mBluetoothService.getState() == BluetoothService.STATE_NONE) {
@@ -108,7 +108,7 @@ public class BluetoothRemote extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.e(TAG, "++ onDestroy ++");
+        Log.i(TAG, "++ onDestroy ++");
 
         if (mBluetoothService != null)
             mBluetoothService.stop();
@@ -154,7 +154,7 @@ public class BluetoothRemote extends Activity {
      * Start making the device discoverable for 300 seconds.
      */
     private void ensureDiscoverable() {
-        Log.e(TAG, "--- ensureDiscoverable ---");
+        Log.i(TAG, "--- ensureDiscoverable ---");
 
         if (mBluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
             Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
@@ -168,6 +168,8 @@ public class BluetoothRemote extends Activity {
      * the input controls necessary for presentation will be there.
      */
     private void startPresentationMode() {
+    	Log.i(TAG, "--- startPresentationMode ---");
+    	
         Intent presModeIntent = new Intent(this, PresentationMode.class);
         presModeIntent.putExtra(PresentationMode.CONNECTED_DEVICE_NAME, mConnectedDeviceName);
         
@@ -177,7 +179,7 @@ public class BluetoothRemote extends Activity {
     }
     
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.e(TAG, "--- onActivityResult ---");
+        Log.i(TAG, "++ onActivityResult ++");
 
         switch (requestCode) {
         case REQUEST_CONNECT_DEVICE:
@@ -207,7 +209,7 @@ public class BluetoothRemote extends Activity {
     private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            Log.e(TAG, "--- Handler handleMessage ---");
+            Log.i(TAG, "++ Handler handleMessage ++");
 
             switch (msg.what) {
             // Changes the message on the application header
