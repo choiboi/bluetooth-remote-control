@@ -41,15 +41,15 @@ public class PresentationMode extends Activity {
     public static final String BLUETOOTH_SERVICE = "BluetoothService";
     public static final String CONNECTED_DEVICE_NAME = "connected_device_name";
     public static final String PROGRAM = "program";
-    
+
     // Intent request codes
-    private static final int REQUEST_PROGRAM_USED = 1;    
-    
+    private static final int REQUEST_PROGRAM_USED = 1;
+
     // Message types sent from BluetoothService Handler
     public static final int RECEIVED_IMAGE = 1;
     public static final int CONNECTION_LOST = 2;
     public static final int IMAGE_TRANSFER_START = 3;
-    
+
     // Constants that indicate command to computer
     private static final String CMD = "CMD";
     private static final String LEFT = "LEFT";
@@ -59,7 +59,7 @@ public class PresentationMode extends Activity {
     private static final String GO_FULLSCREEN = "GO_FULLSCREEN";
     private static final String EXIT_FULLSCREEN = "EXIT_FULLSCREEN";
     private static final String APP_STARTED = "APP_STARTED";
-    
+
     // Presentation program constants also used as commands sent to computer
     private static final String BROWSER = "BROWSER";
     private static final String MICROSOFT_POWERPOINT = "MICRO_PPT";
@@ -89,60 +89,61 @@ public class PresentationMode extends Activity {
 
         mBluetoothService = (BluetoothService) ActivitiesBridge.getObject();
         mLocalDeviceName = mBluetoothService.getLocalDeviceName();
-        
+
         // Ask user which presentation program they will be using
         selectProgramDialog();
-       
+
         // Setup gesture detection
-        mGestureDetector = new GestureDetector(getApplicationContext(), new SwipeGestureDetector(mBluetoothService, mLocalDeviceName));
+        mGestureDetector = new GestureDetector(getApplicationContext(),
+                new SwipeGestureDetector(mBluetoothService, mLocalDeviceName));
     }
 
-	@Override
-	protected void onStart() {
-		super.onStart();
-		Log.i(TAG, "++ onStart ++");
-		
-		mBluetoothService.setPresModeHandler(mHandler);
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.i(TAG, "++ onStart ++");
 
-		String command = CMD + ":" + mLocalDeviceName + ":" + APP_STARTED;
-		mBluetoothService.write(command.getBytes());
-	}
+        mBluetoothService.setPresModeHandler(mHandler);
 
-	@Override
-	protected void onStop() {
-		super.onStop();
-		Log.i(TAG, "++ onStop ++");
+        String command = CMD + ":" + mLocalDeviceName + ":" + APP_STARTED;
+        mBluetoothService.write(command.getBytes());
+    }
 
-		mBluetoothService.removePresModeHandler();
-	}
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i(TAG, "++ onStop ++");
 
-	@Override
+        mBluetoothService.removePresModeHandler();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-		Log.i(TAG, "++ onCreateOptionsMenu ++");
-		
+        Log.i(TAG, "++ onCreateOptionsMenu ++");
+
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.presentation_mode_menu, menu);
         return true;
     }
-    
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         Log.i(TAG, "++ onTouchEvent ++");
-        
+
         return mGestureDetector.onTouchEvent(event);
     }
-    
+
     /*
-     * This function is invoked whenever anyone of the buttons on this Activity 
+     * This function is invoked whenever anyone of the buttons on this Activity
      * has been pressed. It will determine which button was pressed, create the
-     * correct command format in string, and then send it off to be sent to
-     * the server.
+     * correct command format in string, and then send it off to be sent to the
+     * server.
      */
     public void controlButtonPressed(View v) {
-    	Log.i(TAG, "--- controlButtonPressed ---");
-    	
+        Log.i(TAG, "--- controlButtonPressed ---");
+
         String command = CMD + ":" + mLocalDeviceName + ":";
-        
+
         switch (v.getId()) {
         case R.id.left_arrow:
             command += LEFT;
@@ -163,7 +164,7 @@ public class PresentationMode extends Activity {
             command += EXIT_FULLSCREEN + ":" + mPresentationProgram;
             break;
         }
-        
+
         mBluetoothService.write(command.getBytes());
     }
 
@@ -172,17 +173,17 @@ public class PresentationMode extends Activity {
      * select which presentation program they will be using.
      */
     private void selectProgramDialog() {
-    	Log.i(TAG, "--- selectProgramDialog ---");
-    	
+        Log.i(TAG, "--- selectProgramDialog ---");
+
         Intent serverIntent = new Intent(this, ProgramSelectActivity.class);
         startActivityForResult(serverIntent, REQUEST_PROGRAM_USED);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	Log.i(TAG, "++ onOptionsItemSelected ++");
-    	
-        switch (item.getItemId()){
+        Log.i(TAG, "++ onOptionsItemSelected ++");
+
+        switch (item.getItemId()) {
         case R.id.change_presentation_program:
             selectProgramDialog();
             return true;
