@@ -52,7 +52,7 @@ public class BluetoothService {
     private static final String ACKNOWLEDGE_IMG_RECEIVED = "<ACK-IMG-RECEIVED>";
 
     public BluetoothService(Context context, Handler handler) {
-        Log.e(TAG, "++ BluetoothService ++");
+        Log.i(TAG, "++ BluetoothService ++");
         
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mLocalDeviceName = mBluetoothAdapter.getName();
@@ -62,7 +62,7 @@ public class BluetoothService {
     }
 
     public synchronized void start() {
-        Log.e(TAG, "--- start ---");
+        Log.i(TAG, "--- start ---");
 
         // Cancel any thread attempting to make a connection
         if (mConnectThread != null) {
@@ -83,7 +83,7 @@ public class BluetoothService {
      * Stop all threads.
      */
     public synchronized void stop() {
-        Log.e(TAG, "--- stop ---");
+        Log.i(TAG, "--- stop ---");
 
         // Cancel any thread attempting to make a connection
         if (mConnectThread != null) {
@@ -106,7 +106,7 @@ public class BluetoothService {
      * @param state An integer defining the current connection state.
      */
     private synchronized void setState(int state) {
-        Log.e(TAG, "--- setState ---");
+        Log.i(TAG, "--- setState ---");
 
         mState = state;
         // Give the new state to the Handler so the UI Activity can update
@@ -117,7 +117,7 @@ public class BluetoothService {
      * Return the current connection state.
      */
     public synchronized int getState() {
-        Log.e(TAG, "--- getState ---");
+        Log.i(TAG, "--- getState ---");
         
         return mState;
     }
@@ -126,6 +126,8 @@ public class BluetoothService {
      * Set the Handler for PresentationMode.
      */
     public void setPresModeHandler(Handler handler) {
+    	Log.i(TAG, "--- setPresModeHandler ---");
+    	
         mPresModeHandler = handler;
     }
     
@@ -133,6 +135,8 @@ public class BluetoothService {
      * Remove Handler for PresentationMode as the Activity has ended.
      */
     public void removePresModeHandler() {
+    	Log.i(TAG, "--- removePresModeHandler ---");
+    	
     	mPresModeHandler = null;
     }
     
@@ -140,7 +144,7 @@ public class BluetoothService {
      * Return the name of the currently connected device.
      */
     public synchronized String getLocalDeviceName() {
-        Log.e(TAG, "--- getDeviceName ---");
+        Log.i(TAG, "--- getLocalDeviceName ---");
         
         return mBluetoothAdapter.getName();
     }
@@ -151,7 +155,7 @@ public class BluetoothService {
      * @param device The BluetoothDevice to connect
      */
     public synchronized void connect(BluetoothDevice device) {
-        Log.e(TAG, "--- connect to: " + device + " ---");
+        Log.i(TAG, "--- connect to: " + device + " ---");
 
         // Cancel any thread attempting to make a connection
         if (mState == STATE_CONNECTING) {
@@ -181,7 +185,7 @@ public class BluetoothService {
      * @param device The BluetoothDevice that has been connected
      */
     public synchronized void connected(BluetoothSocket socket, BluetoothDevice device) {
-        Log.e(TAG, "--- connected ---");
+        Log.i(TAG, "--- connected ---");
 
         // Cancel the thread that completed the connection
         if (mConnectThread != null) {
@@ -213,7 +217,7 @@ public class BluetoothService {
      * Indicate that the connection attempt failed and notify the UI Activity.
      */
     private void connectionFailed() {
-        Log.e(TAG, "--- connectionFailed ---");
+        Log.i(TAG, "--- connectionFailed ---");
 
         setState(STATE_LISTEN);
 
@@ -229,7 +233,7 @@ public class BluetoothService {
      * Indicate that the connection was lost and notify the UI Activity.
      */
     private void connectionLost() {
-        Log.e(TAG, "--- connectionLost ---");
+        Log.i(TAG, "--- connectionLost ---");
 
         setState(STATE_LISTEN);
 
@@ -246,6 +250,10 @@ public class BluetoothService {
         }
     }
     
+    /*
+     * This function is invoked whenever the user requests to disconnect with
+     * the device that it is currently connected with.
+     */
     public void disconnect() {
     	Log.i(TAG, "--- disconnect ---");
     	
@@ -270,7 +278,7 @@ public class BluetoothService {
      * @see ConnectedThread#write(byte[])
      */
     public void write(byte[] out) {
-        Log.e(TAG, "--- write ---");
+        Log.i(TAG, "--- write ---");
 
         // Create temporary object
         ConnectedThread r;
@@ -294,7 +302,7 @@ public class BluetoothService {
         private final BluetoothDevice mmDevice;
 
         public ConnectThread(BluetoothDevice device) {
-            Log.e(TAG, "+++ create ConnectThread +++");
+            Log.i(TAG, "+++ create ConnectThread +++");
 
             mmDevice = device;
             BluetoothSocket tmpBluetoothSocket = null;
@@ -309,7 +317,7 @@ public class BluetoothService {
         }
 
         public void run() {
-            Log.e(TAG, "+++ BEGIN mConnectThread +++");
+            Log.i(TAG, "+++ BEGIN mConnectThread +++");
 
             setName("ConnectThread");
 
@@ -343,7 +351,7 @@ public class BluetoothService {
             connected(mmSocket, mmDevice);
         }
 
-        public void cancel() {
+        public void cancel() {        	
             try {
                 mmSocket.close();
             } catch (IOException e) {
@@ -364,7 +372,7 @@ public class BluetoothService {
         private boolean mIsDisconnect;
         
         public ConnectedThread(BluetoothSocket socket) {
-            Log.e(TAG, "+++ create ConnectedThread +++");
+            Log.i(TAG, "+++ create ConnectedThread +++");
 
             mmSocket = socket;
             InputStream tmpInStream = null;
@@ -396,6 +404,8 @@ public class BluetoothService {
                     bytes = mmInStream.read(buffer);
                     String receivedData = new String(buffer, 0, bytes);
                     
+                    // If the server successfully receives the commands, then
+                    // send ack that it is ready to receive a screenshot
                     if (receivedData.equals(ACKNOWLEDGE_CMD_RECEIVED)) {
                         if (mPresModeHandler != null) {
                             mPresModeHandler.obtainMessage(PresentationMode.IMAGE_TRANSFER_START).sendToTarget();
@@ -431,6 +441,11 @@ public class BluetoothService {
             }
         }
         
+        /*
+         * Handles with receiving the image from the server. Decodes the
+         * data received from InputStream to an image and signals the 
+         * PresentationMode Activity and it has the image to be updated with.
+         */
         public void receiveScreenshot() {
             Log.i(TAG, "--- receiveScreenshot ---");
             
@@ -477,9 +492,10 @@ public class BluetoothService {
         }
         
         /*
-         * Disconnect the currently connected device.
+         * Disconnect with the currently connected device.
          */
         public void disconnect() {
+        	Log.i(TAG, "--- disconnect ---");
             try {
                 // Set it to true so that it won't invoke connectionLost()
                 mIsDisconnect = true;

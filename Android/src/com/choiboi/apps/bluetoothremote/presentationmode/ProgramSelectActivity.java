@@ -3,6 +3,7 @@ package com.choiboi.apps.bluetoothremote.presentationmode;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
@@ -14,10 +15,14 @@ import android.widget.TextView;
 import com.choiboi.apps.bluetoothremote.R;
 
 public class ProgramSelectActivity extends Activity {
+	
+	// Debugging
+	private static final String TAG = "ProgramSelectActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i(TAG, "++ onCreate ++");
 
         // Setup the window
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);

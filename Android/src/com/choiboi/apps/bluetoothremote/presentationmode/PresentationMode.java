@@ -100,6 +100,8 @@ public class PresentationMode extends Activity {
 	@Override
 	protected void onStart() {
 		super.onStart();
+		Log.i(TAG, "++ onStart ++");
+		
 		mBluetoothService.setPresModeHandler(mHandler);
 
 		String command = CMD + ":" + mLocalDeviceName + ":" + APP_STARTED;
@@ -109,12 +111,15 @@ public class PresentationMode extends Activity {
 	@Override
 	protected void onStop() {
 		super.onStop();
+		Log.i(TAG, "++ onStop ++");
 
 		mBluetoothService.removePresModeHandler();
 	}
 
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
+		Log.i(TAG, "++ onCreateOptionsMenu ++");
+		
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.presentation_mode_menu, menu);
         return true;
@@ -134,6 +139,8 @@ public class PresentationMode extends Activity {
      * the server.
      */
     public void controlButtonPressed(View v) {
+    	Log.i(TAG, "--- controlButtonPressed ---");
+    	
         String command = CMD + ":" + mLocalDeviceName + ":";
         
         switch (v.getId()) {
@@ -165,12 +172,16 @@ public class PresentationMode extends Activity {
      * select which presentation program they will be using.
      */
     private void selectProgramDialog() {
+    	Log.i(TAG, "--- selectProgramDialog ---");
+    	
         Intent serverIntent = new Intent(this, ProgramSelectActivity.class);
         startActivityForResult(serverIntent, REQUEST_PROGRAM_USED);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+    	Log.i(TAG, "++ onOptionsItemSelected ++");
+    	
         switch (item.getItemId()){
         case R.id.change_presentation_program:
             selectProgramDialog();
@@ -185,7 +196,7 @@ public class PresentationMode extends Activity {
      * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
      */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.i(TAG, "--- onActivityResult ---");
+        Log.i(TAG, "++ onActivityResult ++");
 
         if (resultCode == Activity.RESULT_OK) {
             String progSelection = data.getExtras().getString(PROGRAM);
@@ -209,6 +220,7 @@ public class PresentationMode extends Activity {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            Log.i(TAG, "++ handleMessage ++");
             
             switch(msg.what) {
             case RECEIVED_IMAGE:

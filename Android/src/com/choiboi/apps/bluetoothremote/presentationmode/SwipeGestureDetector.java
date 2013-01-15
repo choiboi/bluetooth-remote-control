@@ -9,7 +9,7 @@ import com.choiboi.apps.bluetoothremote.BluetoothService;
 public class SwipeGestureDetector implements OnGestureListener {
     
     // Debugging
-    private static final String TAG = "GestureDetector";
+    private static final String TAG = "SwipeGestureDetector";
     
     // Member fields
     private final BluetoothService mBtService;
@@ -27,7 +27,7 @@ public class SwipeGestureDetector implements OnGestureListener {
     private static final String RIGHT = "RIGHT";
     
     public SwipeGestureDetector(BluetoothService btService, String deviceName) {
-        Log.i(TAG, "++ CustomGestureDetector ++");
+        Log.i(TAG, "++ SwipeGestureDetector ++");
         
         mBtService = btService;
         mLocalDeviceName = deviceName;
