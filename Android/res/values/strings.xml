@@ -11,6 +11,7 @@
     <string name="title_not_connected">NOT CONNECTED</string>
     <string name="btn_find">Find Device</string>
     <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Bluetooth Remote Control</string>
+    <string name="pres_mode">Presentation Mode</string>
     <string name="connect">Connect a Device</string>
     <string name="discoverable">Make Discoverable</string>
     <string name="disconnect">Disconnect</string>
