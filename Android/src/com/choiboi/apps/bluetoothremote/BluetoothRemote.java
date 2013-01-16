@@ -127,6 +127,9 @@ public class BluetoothRemote extends Activity {
      * 
      * Whenever the Disconnect button is pressed it will invoke the correct
      * disconnect methods in BluetoothService.
+     * 
+     * Whenever the Presentation Mode button is pressed it will change to 
+     * PresentationMode Activity.
      */
     public void mainButtonPressed(View v) {
         Log.i(TAG, "--- mainButtonPressed ---");
@@ -141,6 +144,9 @@ public class BluetoothRemote extends Activity {
             break;
         case R.id.disconnect_button:
             mBluetoothService.disconnect();
+            break;
+        case R.id.presentation_mode_button:
+            startPresentationMode();
             break;
         }
     }
@@ -226,9 +232,6 @@ public class BluetoothRemote extends Activity {
                     // Send the name of the connected device to the server
                     String command = DEVICE_CONNECTED + ":" + mLocalDeviceName;
                     mBluetoothService.write(command.getBytes()); 
-
-                    // Move to screen for presentation controls
-                    startPresentationMode();
                     break;
                 case BluetoothService.STATE_CONNECTING:
                     mTitle.setText(R.string.title_connecting);
