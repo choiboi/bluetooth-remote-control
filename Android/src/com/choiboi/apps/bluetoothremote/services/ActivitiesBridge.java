@@ -1,4 +1,4 @@
-package com.choiboi.apps.bluetoothremote;
+package com.choiboi.apps.bluetoothremote.services;
 
 /*
  * This class helps pass objects between Android Activities.

@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.choiboi.apps.bluetoothremote.presentationmode.PresentationMode;
+import com.choiboi.apps.bluetoothremote.services.ActivitiesBridge;
 
 public class BluetoothRemote extends Activity {
 

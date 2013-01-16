@@ -18,9 +18,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.choiboi.apps.bluetoothremote.ActivitiesBridge;
 import com.choiboi.apps.bluetoothremote.BluetoothService;
 import com.choiboi.apps.bluetoothremote.R;
+import com.choiboi.apps.bluetoothremote.services.ActivitiesBridge;
 
 public class PresentationMode extends Activity {
 
