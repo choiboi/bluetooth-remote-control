@@ -114,34 +114,37 @@ public class BluetoothRemote extends Activity {
         if (mBluetoothService != null)
             mBluetoothService.stop();
     }
-
+    
     /*
-     * Whenever the Connect a Device button is clicked it will invoke this
-     * function and launch the DeviceListActivity to see devices and do scan.
+     * This function is invoked when one of the buttons on the main screen is
+     * selected.
+     * 
+     * Whenever the Connect a Device button is clicked it will launch the
+     *  DeviceListActivity to see devices and do scan.
+     * 
+     * Whenever the Make Discoverable button is clicked it will ensure that
+     * this device is discoverable by others.
+     * 
+     * Whenever the Disconnect button is pressed it will invoke the correct
+     * disconnect methods in BluetoothService.
      */
-    public void connectButtonClicked(View v) {
-        Log.i(TAG, "--- connectButtonClicked ---");
+    public void mainButtonPressed(View v) {
+        Log.i(TAG, "--- mainButtonPressed ---");
         
-        Intent serverIntent = new Intent(this, DeviceListActivity.class);
-        startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
-    }
-
-    /*
-     * Whenever the Make Discoverable button is clicked it will invoke this
-     * function and will ensure that this device is discoverable by others.
-     */
-    public void discoverableButtonClicked(View v) {
-        Log.i(TAG, "--- discoverableButtonClicked ---");
-        
-        ensureDiscoverable();
+        switch (v.getId()) {
+        case R.id.connect_button:
+            Intent serverIntent = new Intent(this, DeviceListActivity.class);
+            startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+            break;
+        case R.id.discoverable_button:
+            ensureDiscoverable();
+            break;
+        case R.id.disconnect_button:
+            mBluetoothService.disconnect();
+            break;
+        }
     }
     
-    public void disconnectButtonClicked(View v) {
-    	Log.i(TAG, "--- disconnectButtonClicked ---");
-    	
-    	mBluetoothService.disconnect();
-    }
-
     /*
      * Initialize BluetoothService to perform Bluetooth connections.
      */

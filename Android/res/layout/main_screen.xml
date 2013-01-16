@@ -14,7 +14,7 @@
         android:layout_alignRight="@+id/discoverable_button"
         android:drawableTop="@android:drawable/ic_menu_search"
         android:text="@string/connect" 
-        android:onClick="connectButtonClicked"/>
+        android:onClick="mainButtonPressed"/>
 
     <Button
         android:id="@+id/discoverable_button"
@@ -24,10 +24,10 @@
         android:layout_marginBottom="138dp"
         android:drawableTop="@android:drawable/ic_menu_mylocation"
         android:text="@string/discoverable" 
-        android:onClick="discoverableButtonClicked"/>
+        android:onClick="mainButtonPressed"/>
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/disconnect_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/discoverable_button"
@@ -36,6 +36,6 @@
         android:layout_marginTop="68dp"
         android:text="@string/disconnect" 
         android:drawableTop="@android:drawable/ic_delete"
-        android:onClick="disconnectButtonClicked"/>
+        android:onClick="mainButtonPressed"/>
 
 </RelativeLayout>
