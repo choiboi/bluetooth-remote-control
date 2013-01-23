@@ -119,34 +119,33 @@ public class BluetoothRemote extends Activity {
      * This function is invoked when one of the buttons on the main screen is
      * selected.
      * 
+     * Whenever the Presentation Mode button is pressed it will change to 
+     * PresentationMode Activity.
+     * 
      * Whenever the Connect a Device button is clicked it will launch the
-     *  DeviceListActivity to see devices and do scan.
+     * DeviceListActivity to see devices and do scan.
      * 
      * Whenever the Make Discoverable button is clicked it will ensure that
      * this device is discoverable by others.
      * 
      * Whenever the Disconnect button is pressed it will invoke the correct
      * disconnect methods in BluetoothService.
-     * 
-     * Whenever the Presentation Mode button is pressed it will change to 
-     * PresentationMode Activity.
      */
     public void mainButtonPressed(View v) {
         Log.i(TAG, "--- mainButtonPressed ---");
-        
+
         switch (v.getId()) {
+        case R.id.presentation_mode_button:
+            startPresentationMode();
+            break;
         case R.id.connect_button:
-            Intent serverIntent = new Intent(this, DeviceListActivity.class);
-            startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+            connectDevice();
             break;
         case R.id.discoverable_button:
             ensureDiscoverable();
             break;
         case R.id.disconnect_button:
             mBluetoothService.disconnect();
-            break;
-        case R.id.presentation_mode_button:
-            startPresentationMode();
             break;
         }
     }
@@ -174,18 +173,33 @@ public class BluetoothRemote extends Activity {
     }
     
     /*
+     * Brings up a dialog where the user can select which device to connect to.
+     */
+    private void connectDevice() {
+        Log.i(TAG, "--- connectDevice ---");
+        
+        Intent serverIntent = new Intent(this, DeviceListActivity.class);
+        startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+    }
+    
+    /*
      * Once the device is connected, switch to Presentation Mode were all
      * the input controls necessary for presentation will be there.
      */
     private void startPresentationMode() {
     	Log.i(TAG, "--- startPresentationMode ---");
     	
-        Intent presModeIntent = new Intent(this, PresentationMode.class);
-        presModeIntent.putExtra(PresentationMode.CONNECTED_DEVICE_NAME, mConnectedDeviceName);
-        
-        // Pass BluetoothService object to PresentationMode Activity
-        ActivitiesBridge.setObject(mBluetoothService);
-        startActivity(presModeIntent);
+    	if (mBluetoothService.getState() != BluetoothService.STATE_CONNECTED) {
+    	    // Bring up alert dialog.
+    	    Toast.makeText(getApplicationContext(), "Connect to a device!", Toast.LENGTH_SHORT).show();
+    	} else {
+            Intent presModeIntent = new Intent(this, PresentationMode.class);
+            presModeIntent.putExtra(PresentationMode.CONNECTED_DEVICE_NAME, mConnectedDeviceName);
+            
+            // Pass BluetoothService object to PresentationMode Activity
+            ActivitiesBridge.setObject(mBluetoothService);
+            startActivity(presModeIntent);
+    	}
     }
     
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

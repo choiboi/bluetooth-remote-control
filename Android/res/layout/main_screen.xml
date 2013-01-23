@@ -14,6 +14,7 @@
         android:layout_marginTop="141dp"
         android:drawableTop="@android:drawable/ic_media_play"
         android:onClick="mainButtonPressed"
+        android:tag="@string/pres_mode"
         android:text="@string/pres_mode" />
 
     <Button
@@ -25,25 +26,25 @@
         android:drawableTop="@android:drawable/ic_menu_search"
         android:onClick="mainButtonPressed"
         android:text="@string/connect" />
+    
+    <Button
+        android:id="@+id/discoverable_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/connect_button"
+        android:layout_centerHorizontal="true"
+        android:drawableTop="@android:drawable/ic_menu_mylocation"
+        android:onClick="mainButtonPressed"
+        android:text="@string/discoverable" />
 
     <Button
         android:id="@+id/disconnect_button"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/connect_button"
+        android:layout_below="@+id/discoverable_button"
         android:layout_centerHorizontal="true"
         android:drawableTop="@android:drawable/ic_delete"
         android:onClick="mainButtonPressed"
         android:text="@string/disconnect" />
-
-    <Button
-        android:id="@+id/discoverable_button"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/disconnect_button"
-        android:layout_centerHorizontal="true"
-        android:drawableTop="@android:drawable/ic_menu_mylocation"
-        android:onClick="mainButtonPressed"
-        android:text="@string/discoverable" />
 
 </RelativeLayout>
