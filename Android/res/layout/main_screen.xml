@@ -4,46 +4,44 @@
     android:layout_height="fill_parent"
     android:background="@color/black"
     android:orientation="vertical" >
-    
-    <Button
-        android:id="@+id/connect_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/discoverable_button"
-        android:layout_alignLeft="@+id/discoverable_button"
-        android:layout_alignRight="@+id/discoverable_button"
-        android:drawableTop="@android:drawable/ic_menu_search"
-        android:text="@string/connect" 
-        android:onClick="mainButtonPressed"/>
 
     <Button
         android:id="@+id/presentation_mode_button"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/connect_button"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
+        android:layout_marginTop="141dp"
         android:drawableTop="@android:drawable/ic_media_play"
-        android:text="@string/pres_mode" 
-        android:onClick="mainButtonPressed"/>
+        android:onClick="mainButtonPressed"
+        android:text="@string/pres_mode" />
+
+    <Button
+        android:id="@+id/connect_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/presentation_mode_button"
+        android:layout_centerHorizontal="true"
+        android:drawableTop="@android:drawable/ic_menu_search"
+        android:onClick="mainButtonPressed"
+        android:text="@string/connect" />
 
     <Button
         android:id="@+id/disconnect_button"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/discoverable_button"
-        android:layout_alignParentBottom="true"
-        android:layout_alignRight="@+id/discoverable_button"
-        android:layout_marginBottom="78dp"
+        android:layout_below="@+id/connect_button"
+        android:layout_centerHorizontal="true"
         android:drawableTop="@android:drawable/ic_delete"
         android:onClick="mainButtonPressed"
         android:text="@string/disconnect" />
 
     <Button
         android:id="@+id/discoverable_button"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/disconnect_button"
-        android:layout_alignLeft="@+id/presentation_mode_button"
+        android:layout_below="@+id/disconnect_button"
+        android:layout_centerHorizontal="true"
         android:drawableTop="@android:drawable/ic_menu_mylocation"
         android:onClick="mainButtonPressed"
         android:text="@string/discoverable" />
