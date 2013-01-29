@@ -186,7 +186,7 @@ public class ProcessInputConnection implements Runnable {
         if (inputCmd[3].equals(MICROSOFT_POWERPOINT)) {
             if (inputCmd[2].equals(GO_FULLSCREEN)) {
                 microPPTkeyEventGoFullscreen();
-            } else if (inputCmd[1].equals(EXIT_FULLSCREEN)) {
+            } else if (inputCmd[2].equals(EXIT_FULLSCREEN)) {
                 microPPTKeyEventExitFullscreen();
             }
         } else if (mOS.startsWith(WINDOWS)) {
