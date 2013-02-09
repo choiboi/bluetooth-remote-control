@@ -150,7 +150,7 @@ public class ProcessInputConnection implements Runnable {
         } else if (inputCmd[2].equals(GO_FULLSCREEN) || inputCmd[2].equals(EXIT_FULLSCREEN)) {
             handleFullScreenCmd(inputCmd);
         } else if(inputCmd[2].equals(APP_STARTED)) {
-            System.out.println(mConnectedDeviceName + " is in Presentation Mode!!\n");
+            System.out.println(inputCmd[1] + " is in Presentation Mode!!\n");
         } else if (inputCmd[2].equals(EXIT_CMD)) {
             System.out.println("==============APPLICATION ENDED==============");
         }
